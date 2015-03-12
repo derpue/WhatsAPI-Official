@@ -2926,6 +2926,9 @@ class WhatsProt
             && strpos($node->getAttribute('from'), "-") !== false
             && $node->getAttribute('type') != null) {
             $groupId = self::parseJID($node->getAttribute('from'));
+            /*
+             * Do we need this anymore? Can't see it anywhere in the logs and parseJID doesn't make sense to me
+             */
             if ($node->getAttribute('add') != null) {
                 $this->eventManager()->fire("onGroupsParticipantsAdd",
                     array(
@@ -3315,15 +3318,20 @@ class WhatsProt
                                 array(
                                     $this->phoneNumber,
                                     $node->getAttribute('from'),
-                                    $node->getChild(0)->getChild(0)->getAttribute('jid')
+                                    $node->getChild(0)->getChild(0)->getAttribute('jid'),
+                                    $node->getAttribute('notify'),
+                                    $node->getAttribute('participant'),
                                 ));
                     } else if ($node->hasChild('add')) {
-                        $this->eventManager()->fire("onGroupsParticipantsAdd",
-                            array(
-                                $this->phoneNumber,
-                                $node->getAttribute('from'),
-                                $node->getChild(0)->getChild(0)->getAttribute('jid')
-                            ));
+                        if ($node->getChild(0)->hasChild('participant'))
+                            $this->eventManager()->fire("onGroupsParticipantsAdd",
+                                array(
+                                    $this->phoneNumber,
+                                    $node->getAttribute('from'),
+                                    $node->getChild(0)->getChild(0)->getAttribute('jid'),
+                                    $node->getAttribute('notify'),
+                                    $node->getAttribute('participant'),
+                                ));
                     }
                     else if ($node->hasChild('create')) {
                         $groupMembers = array();
