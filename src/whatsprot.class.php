@@ -3330,6 +3330,7 @@ class WhatsProt
                                 $node->getChild(0)->getChild(0)->getAttribute('id'),
                                 $node->getChild(0)->getChild(0)->getAttribute('subject'),
                                 $node->getAttribute('participant'),
+                                $node->getAttribute('notify'),
                                 $node->getChild(0)->getChild(0)->getAttribute('creation'),
                                 $groupMembers
                             ));
