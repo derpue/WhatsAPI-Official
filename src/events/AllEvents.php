@@ -86,8 +86,8 @@ abstract class AllEvents
     public function onGroupisCreated( $mynumber, $creator, $gid, $subject, $admin, $creation, $members = array()){}
     public function onGroupsChatCreate( $mynumber, $gid ){}
     public function onGroupsChatEnd( $mynumber, $gid ){}
-    public function onGroupsParticipantsAdd( $mynumber, $groupId, $jid ){}
-    public function onGroupsParticipantsRemove( $mynumber, $groupId, $jid){}
+    public function onGroupsParticipantsAdd( $mynumber, $groupId, $jid, $decider_name, $decider_jid){}
+    public function onGroupsParticipantsRemove( $mynumber, $groupId, $jid, $decider_name, $decider_jid){}
     public function onLogin( $mynumber ){}
     public function onLoginFailed( $mynumber, $data ){}
     public function onAccountExpired( $mynumber, $kind, $status, $creation, $expiration ){}

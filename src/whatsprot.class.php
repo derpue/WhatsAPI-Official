@@ -3299,20 +3299,25 @@ class WhatsProt
                 case "w:gp2":
                     if ($node->hasChild('remove')) {
                     	if ($node->getChild(0)->hasChild('participant'))
-                        $this->eventManager()->fire("onGroupsParticipantsRemove",
-                            array(
-                                $this->phoneNumber,
-                                $node->getAttribute('from'),
-                                $node->getChild(0)->getChild(0)->getAttribute('jid')
-                            ));
-                  } else if ($node->hasChild('add')) {
-                        $this->eventManager()->fire("onGroupsParticipantsAdd",
-                            array(
-                                $this->phoneNumber,
-                                $node->getAttribute('from'),
-                                $node->getChild(0)->getChild(0)->getAttribute('jid')
-                            ));
-                  }
+                            $this->eventManager()->fire("onGroupsParticipantsRemove",
+                                array(
+                                    $this->phoneNumber,
+                                    $node->getAttribute('from'),
+                                    $node->getChild(0)->getChild(0)->getAttribute('jid'),
+                                    $node->getAttribute('notify'),
+                                    $node->getAttribute('participant'),
+                                ));
+                    } else if ($node->hasChild('add')) {
+                        if ($node->getChild(0)->hasChild('participant'))
+                            $this->eventManager()->fire("onGroupsParticipantsAdd",
+                                array(
+                                    $this->phoneNumber,
+                                    $node->getAttribute('from'),
+                                    $node->getChild(0)->getChild(0)->getAttribute('jid'),
+                                    $node->getAttribute('notify'),
+                                    $node->getAttribute('participant'),
+                                ));
+                    }
                     else if ($node->hasChild('create')) {
                         $groupMembers = array();
                         foreach ($node->getChild(0)->getChild(0)->getChildren() AS $cn) {
@@ -3328,7 +3333,7 @@ class WhatsProt
                                 $node->getChild(0)->getChild(0)->getAttribute('creation'),
                                 $groupMembers
                             ));
-                  }
+                    }
                     else if ($node->hasChild('subject')) {
                         $this->eventManager()->fire("onGetGroupsSubject",
                             array(
