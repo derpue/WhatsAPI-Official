@@ -2840,6 +2840,7 @@ class WhatsProt
                 } elseif ($node->getChild("media")->getAttribute('type') == 'location') {
                     $url = $node->getChild("media")->getAttribute('url');
                     $name = $node->getChild("media")->getAttribute('name');
+                    $author = $node->getAttribute("participant");
 
                     $this->eventManager()->fire("onGetLocation",
                         array(
