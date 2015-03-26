@@ -51,6 +51,7 @@ class MyEvents extends AllEvents
 //        'onGroupsChatCreate',
 //        'onGroupsChatEnd',
 //        'onGroupsParticipantsAdd',
+//        'onGroupsParticipantsPromote',
 //        'onGroupsParticipantsRemove',
 //        'onLogin',
 //        'onLoginFailed',
