@@ -4042,6 +4042,7 @@ class WhatsProt
         $creator = $groupNode->getAttribute('creator');
         $creation = $groupNode->getAttribute('creation');
         $subject = $groupNode->getAttribute('subject');
+        $groupID = $groupNode->getAttribute('id');
         $participants = array();
         $admins = array();
         if ($groupNode->getChild(0) != null) {
@@ -4054,6 +4055,7 @@ class WhatsProt
         $this->eventManager()->fire("onGetGroupV2Info",
             array(
                 $this->phoneNumber,
+                $groupID,
                 $creator,
                 $creation,
                 $subject,
