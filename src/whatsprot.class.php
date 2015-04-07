@@ -3337,6 +3337,7 @@ class WhatsProt
                                 $admins,
                                 $node->getAttribute('participant'),
                                 $node->getAttribute('notify'),
+                                $node->getAttribute('t'),                   //Notification time (Different when type!=new aka (re)join an existing group)
                                 $node->getChild(0)->getAttribute('type'),
                             ));
                     }
