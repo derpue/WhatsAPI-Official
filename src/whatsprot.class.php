@@ -3310,21 +3310,16 @@ class WhatsProt
                                 ));
                     }
                     else if ($node->hasChild('create')) {
-                        $groupMembers = array();
-                        foreach ($node->getChild(0)->getChild(0)->getChildren() AS $cn) {
-                            $groupMembers[] = $cn->getAttribute('jid');
-                        }
+                        $groupNode = $node->getChild(0)->getChild(0);
                         $this->eventManager()->fire("onGroupisCreated",
                             array(
                                 $this->phoneNumber,
-                                $node->getChild(0)->getChild(0)->getAttribute('creator'),
-                                $node->getChild(0)->getChild(0)->getAttribute('id'),
-                                $node->getChild(0)->getChild(0)->getAttribute('subject'),
-                                $node->getAttribute('participant'),
-                                $node->getAttribute('notify'),
-                                $node->getChild(0)->getChild(0)->getAttribute('creation'),
-                                $groupMembers
+                                $groupNode->getAttribute('id'),
+                                $groupNode->getAttribute('creator'),
+                                $groupNode->getAttribute('creation'),
+                                $groupNode->getAttribute('subject'),
                             ));
+                        $this->handleGroupV2InfoResponse($groupNode, true);
                     }
                     else if ($node->hasChild('subject')) {
                         $this->eventManager()->fire("onGetGroupsSubject",
