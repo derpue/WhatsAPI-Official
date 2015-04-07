@@ -3311,7 +3311,6 @@ class WhatsProt
                     }
                     else if ($node->hasChild('create')) {
                         $groupNode = $node->getChild(0)->getChild(0);
-
                         $creator = $groupNode->getAttribute('creator');
                         $creation = $groupNode->getAttribute('creation');
                         $subject = $groupNode->getAttribute('subject');
@@ -3336,6 +3335,9 @@ class WhatsProt
                                 $subject,
                                 $participants,
                                 $admins,
+                                $node->getAttribute('participant'),
+                                $node->getAttribute('notify'),
+                                $node->getChild(0)->getAttribute('type'),
                             ));
                     }
                     else if ($node->hasChild('subject')) {
