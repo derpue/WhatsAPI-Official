@@ -83,7 +83,7 @@ abstract class AllEvents
     public function onGetVideo( $mynumber, $from, $id, $type, $time, $name, $url, $file, $size, $mimeType, $fileHash, $duration, $vcodec, $acodec, $preview, $caption ){}
     public function onGetvCard( $mynumber, $from, $id, $type, $time, $name, $vcardname, $vcard ){}
     public function onGroupCreate( $mynumber, $groupId ){}
-    public function onGroupisCreated( $mynumber, $groupID, $creatorJID, $creationTime){}
+    public function onGroupisCreated( $mynumber, $groupID, $creatorJID, $creationTim, $groupSubject, $groupMembers = array(), $groupAdmins = array()){}
     public function onGroupsChatCreate( $mynumber, $gid ){}
     public function onGroupsChatEnd( $mynumber, $gid ){}
     public function onGroupsParticipantsAdd( $mynumber, $groupId, $jid, $decider_name, $decider_jid){}

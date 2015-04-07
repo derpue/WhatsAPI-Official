@@ -3311,15 +3311,32 @@ class WhatsProt
                     }
                     else if ($node->hasChild('create')) {
                         $groupNode = $node->getChild(0)->getChild(0);
+
+                        $creator = $groupNode->getAttribute('creator');
+                        $creation = $groupNode->getAttribute('creation');
+                        $subject = $groupNode->getAttribute('subject');
+                        $groupID = $groupNode->getAttribute('id');
+                        $participants = array();
+                        $admins = array();
+
+                        if ($groupNode->getChild(0) != null) {
+                            foreach ($groupNode->getChildren() as $child) {
+                                $participants[] = $child->getAttribute('jid');
+                                if ($child->getAttribute('type') == "admin")
+                                    $admins[] = $child->getAttribute('jid');
+                            }
+                        }
+
                         $this->eventManager()->fire("onGroupisCreated",
                             array(
                                 $this->phoneNumber,
-                                $groupNode->getAttribute('id'),
-                                $groupNode->getAttribute('creator'),
-                                $groupNode->getAttribute('creation'),
-                                $groupNode->getAttribute('subject'),
+                                $groupID,
+                                $creator,
+                                $creation,
+                                $subject,
+                                $participants,
+                                $admins,
                             ));
-                        $this->handleGroupV2InfoResponse($groupNode, true);
                     }
                     else if ($node->hasChild('subject')) {
                         $this->eventManager()->fire("onGetGroupsSubject",
