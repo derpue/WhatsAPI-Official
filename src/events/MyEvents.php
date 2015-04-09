@@ -75,6 +75,7 @@ class MyEvents extends AllEvents
 //        'onStreamError',
 //        'onUploadFile',
 //        'onUploadFileFailed',
+//        'onAfterServerNodeHandled',
     );
 
     public function onConnect($mynumber, $socket)

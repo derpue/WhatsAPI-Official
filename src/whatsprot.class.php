@@ -3534,6 +3534,20 @@ class WhatsProt
             ////on get ack
         }
 
+        /**
+         * Lets fire an Event for all Nodes we get from the server (AFTER they got processed)
+         * First, there may be the need to implement additional own node handling
+         * Second, we may want to be informed when a certain request (regardless of type) was answered by the server.
+         * Especially requests we got from a (web)frontend. We could code that behavior in each event, but this "central" event
+         * allows us to do this in one single event, to notify e.g. the frontend
+         */
+        $this->eventManager()->fire("onAfterServerNodeHandled",
+            array(
+                $this->phoneNumber,
+                $node->getAttribute('id'),
+                $node
+            ));
+
     }
 
     /**

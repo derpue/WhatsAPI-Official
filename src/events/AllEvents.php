@@ -112,5 +112,6 @@ abstract class AllEvents
     public function onStreamError( $data ){}
     public function onUploadFile( $mynumber, $filename, $url ){}
     public function onUploadFileFailed( $mynumber, $filename ){}
+    public function onAfterServerNodeHandled($myNumber, $nodeID, ProtocolNode $node) {}
 
 }
