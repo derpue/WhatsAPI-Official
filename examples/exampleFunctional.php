@@ -4,17 +4,11 @@ require_once '../src/whatsprot.class.php';
 //Change to your time zone
 date_default_timezone_set('Europe/Madrid');
 
-
-// phone number, deviceIdentity, and name.
-$options = getopt("d::", array("debug::"));
-$debug = (array_key_exists("debug", $options) || array_key_exists("d", $options)) ? true : false;
-
 ########## DO NOT COMMIT THIS FILE WITH YOUR CREDENTIALS ###########
 ///////////////////////CONFIGURATION///////////////////////
 //////////////////////////////////////////////////////////
 $username = "**your phone number**";                      // Telephone number including the country code without '+' or '00'.
 $password = "**server generated whatsapp password**";     // Use registerTool.php or exampleRegister.php to obtain your password
-$identity = "myIdentity";                                 // Name of the file where the identity will be stored. In this exaple, a file called myIdentity.dat will be created
 $nickname = "**your nickname**";                          // This is the username (or nickname) displayed by WhatsApp clients.
 $target = "**contact's phone number**";                   // Destination telephone number including the country code without '+' or '00'.
 $debug = false;                                           // Set this to true, to see debug mode.
@@ -42,34 +36,33 @@ function onGetProfilePicture($from, $target, $type, $data)
     } else {
         $filename = $target . ".jpg";
     }
-    $filename = WhatsProt::PICTURES_FOLDER."/" . $filename;
-    $fp = @fopen($filename, "w");
-    if ($fp) {
-        fwrite($fp, $data);
-        fclose($fp);
-    }
 
-    echo "- Profile picture saved in /".WhatsProt::PICTURES_FOLDER."\n";
+    $filename = Constants::PICTURES_FOLDER. "/" . $filename;
+
+    file_put_contents($filename, $data);
+
+    echo "- Profile picture saved in " . Constants::PICTURES_FOLDER. "/" . $filename . "\n";
 }
 
-function onPresenceReceived($username, $from, $type)
+function onPresenceAvailable($username, $from)
 {
-	$dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
-		if($type == "available")
-    		echo "<$dFrom is online>\n\n";
-    	else
-    		echo "<$dFrom is offline>\n\n";
+    $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
+    echo "<$dFrom is online>\n\n";
+}
+
+function onPresenceUnavailable($username, $from, $last)
+{
+    $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
+    echo "<$dFrom is offline>\n\n";
 }
 
 echo "[] Logging in as '$nickname' ($username)\n";
 //Create the whatsapp object and setup a connection.
-$w = new WhatsProt($username, $identity, $nickname, $debug);
+$w = new WhatsProt($username, $nickname, $debug);
 $w->connect();
 
 // Now loginWithPassword function sends Nickname and (Available) Presence
 $w->loginWithPassword($password);
-
-echo "[*] Connected to WhatsApp\n\n";
 
 //Retrieve large profile picture. Output is in /src/php/pictures/ (you need to bind a function
 //to the event onProfilePicture so the script knows what to do.
@@ -78,8 +71,10 @@ $w->sendGetProfilePicture($target, true);
 
 //Print when the user goes online/offline (you need to bind a function to the event onPressence
 //so the script knows what to do)
-$w->eventManager()->bind("onPresence", "onPresenceReceived");
+$w->eventManager()->bind("onPresenceAvailable", "onPresenceAvailable");
+$w->eventManager()->bind("onPresenceUnavailable", "onPresenceUnavailable");
 
+echo "[*] Connected to WhatsApp\n\n";
 
 //update your profile picture
 $w->sendSetProfilePicture("demo/venom.jpg");
@@ -95,8 +90,6 @@ $w->sendMessageImage($target, "demo/x3.jpg");
 
 //send Location
 //$w->sendLocation($target, '4.948568', '52.352957');
-
-
 
 // Implemented out queue messages and auto msgid
 $w->sendMessage($target, "Guess the number :)");
@@ -173,14 +166,14 @@ class ProcessNode
             $this->wp->sendMessage($this->target, "Congratulations you guessed the right number!");
         }
         elseif (ctype_digit($text)) {
-			if( (int)$text != "5")
-            	$this->wp->sendMessage($this->target, "I'm sorry, try again!");
+            if ((int)$text != "5")
+                $this->wp->sendMessage($this->target, "I'm sorry, try again!");
         }
         $text = $node->getChild('body');
         $text = $text->getData();
         $notify = $node->getAttribute("notify");
 
-		echo "\n- ".$notify.": ".$text."    ".date('H:i')."\n";
+        echo "\n- ".$notify.": ".$text."    ".date('H:i')."\n";
 
     }
 }

@@ -1,8 +1,6 @@
 <?php
-
 abstract class AllEvents
 {
-
     protected $eventsToListenFor = array();
     protected $whatsProt;
 
@@ -38,9 +36,9 @@ abstract class AllEvents
         return $this;
     }
 
-
     //Adding to this list? Please put them in alphabetical order!
-    public function onClose($mynumber, $error){}
+    public function onCallReceived($mynumber, $from, $id, $notify, $time, $callId) {}
+    public function onClose($mynumber, $error) {}
     public function onCodeRegister( $mynumber, $login, $password, $type, $expiration, $kind, $price, $cost, $currency, $price_expiration ){}
     public function onCodeRegisterFailed( $mynumber, $status, $reason, $retry_after ){}
     public function onCodeRequest( $mynumber, $method, $length ){}
@@ -54,13 +52,13 @@ abstract class AllEvents
     public function onDisconnect( $mynumber, $socket ) {}
     public function onDissectPhone( $mynumber, $phonecountry, $phonecc, $phone, $phonemcc, $phoneISO3166, $phoneISO639, $phonemnc ) {}
     public function onDissectPhoneFailed( $mynumber ){}
-    public function onGetAudio( $mynumber, $from, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $duration, $acodec ){}
+    public function onGetAudio($mynumber, $from, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $duration, $acodec, $fromJID_ifGroup = null) {}
     public function onGetBroadcastLists( $mynumber, $broadcastLists ){}
     public function onGetError( $mynumber, $from, $id, $data ){}
     public function onGetExtendAccount( $mynumber, $kind, $status, $creation, $expiration ){}
     public function onGetFeature( $mynumber, $from, $encrypt ){}
     public function onGetGroupMessage( $mynumber, $from_group_jid, $from_user_jid, $id, $type, $time, $name, $body ){}
-    public function onGetGroupParticipants( $mynumber, $groupId, $groupList ){}
+
     public function onGetGroups( $mynumber, $groupList ){}
     public function onGetGroupsInfo( $mynumber, $groupList ){}
     public function onGetGroupV2Info( $mynumber, $group_id, $creator, $creation, $subject, $participants, $admins, $fromGetGroup ){}
@@ -81,7 +79,7 @@ abstract class AllEvents
     public function onGetStatus( $mynumber, $from, $requested, $id, $time, $data ){}
     public function onGetSyncResult( $result ){}
     public function onGetVideo( $mynumber, $from, $id, $type, $time, $name, $url, $file, $size, $mimeType, $fileHash, $duration, $vcodec, $acodec, $preview, $caption ){}
-    public function onGetvCard( $mynumber, $from, $id, $type, $time, $name, $vcardname, $vcard ){}
+    public function onGetvCard($mynumber, $from, $id, $type, $time, $name, $vcardname, $vcard, $fromJID_ifGroup = null) {}
     public function onGroupCreate( $mynumber, $groupId ){}
     public function onGroupisCreated( $mynumber, $groupID, $creatorJID, $creationTime, $groupSubject,
                                                 $groupMembers, $groupAdmins, $issuerJID, $issuerName, $notificationTime, $creationType){}
@@ -92,16 +90,22 @@ abstract class AllEvents
     public function onGroupsParticipantsRemove($mynumber, $groupId, $jid) {}
     public function onLogin( $mynumber ){}
     public function onLoginFailed( $mynumber, $data ){}
+    public function onLoginSuccess($mynumber, $kind, $status, $creation, $expiration) {}
     public function onAccountExpired( $mynumber, $kind, $status, $creation, $expiration ){}
     public function onMediaMessageSent( $mynumber, $to, $id, $filetype, $url, $filename, $filesize, $filehash, $caption, $icon ){}
     public function onMediaUploadFailed( $mynumber, $id, $node, $messageNode, $statusMessage ){}
     public function onMessageComposing( $mynumber, $from, $id, $type, $time ){}
     public function onMessagePaused( $mynumber, $from, $id, $type, $time ){}
-    public function onMessageReceivedClient( $mynumber, $from, $id, $type, $time ){}
+    public function onMessageReceivedClient($mynumber, $from, $id, $type, $time, $participant) {}
     public function onMessageReceivedServer( $mynumber, $from, $id, $type, $time ){}
+    public function onNumberWasAdded($mynumber, $jid) {}
+    public function onNumberWasRemoved($mynumber, $jid) {}
+    public function onNumberWasUpdated($mynumber, $jid) {}
     public function onPaidAccount( $mynumber, $author, $kind, $status, $creation, $expiration ){}
+    public function onPaymentRecieved($mynumber, $kind, $status, $creation, $expiration) {}
     public function onPing( $mynumber, $id ){}
-    public function onPresence( $mynumber, $from, $status ){}
+    public function onPresenceAvailable($mynumber, $from) {}
+    public function onPresenceUnavailable($mynumber, $from, $last) {}
     public function onProfilePictureChanged( $mynumber, $from, $id, $time ){}
     public function onProfilePictureDeleted( $mynumber, $from, $id, $time ){}
     public function onSendMessage( $mynumber, $target, $messageId, $node ){}
@@ -113,5 +117,9 @@ abstract class AllEvents
     public function onUploadFile( $mynumber, $filename, $url ){}
     public function onUploadFileFailed( $mynumber, $filename ){}
     public function onAfterServerNodeHandled($myNumber, $nodeID, ProtocolNode $node) {}
+
+
+
+
 
 }

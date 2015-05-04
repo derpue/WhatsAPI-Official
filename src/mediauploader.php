@@ -1,11 +1,9 @@
 <?php
-
 /**
  * Media uploader class
  */
 class WhatsMediaUploader
 {
-
     protected static function sendData($host, $POST, $HEAD, $filepath, $mediafile, $TAIL)
     {
         $sock = fsockopen("ssl://" . $host, 443);
@@ -60,7 +58,6 @@ class WhatsMediaUploader
         //filename to md5 digest
         $cryptoname    = md5($filepath) . "." . $mediafile['fileextension'];
         $boundary      = "zzXXzzYYzzXXzzQQ";
-        $contentlength = 0;
 
         if (is_array($to)) {
             $to = implode(',', $to);
@@ -78,17 +75,14 @@ class WhatsMediaUploader
 
         $fBAOS = "\r\n--" . $boundary . "--\r\n";
 
-        $contentlength += strlen($hBAOS);
-        $contentlength += strlen($fBAOS);
-        $contentlength += $mediafile['filesize'];
+        $contentlength = strlen($hBAOS) + strlen($fBAOS) + $mediafile['filesize'];
 
         $POST = "POST " . $url . "\r\n";
         $POST .= "Content-Type: multipart/form-data; boundary=" . $boundary . "\r\n";
         $POST .= "Host: " . $host . "\r\n";
-        $POST .= "User-Agent: " . WhatsProt::WHATSAPP_USER_AGENT . "\r\n";
+        $POST .= "User-Agent: " . Constants::WHATSAPP_USER_AGENT . "\r\n";
         $POST .= "Content-Length: " . $contentlength . "\r\n\r\n";
 
         return self::sendData($host, $POST, $hBAOS, $filepath, $mediafile, $fBAOS);
     }
-
 }

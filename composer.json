@@ -1,23 +1,22 @@
 {
     "name": "mgp25/whatsapi",
-    "description": "PHP Interface for WhatsApp Messenger",
+    "description": "The php WhatsApp library ",
     "license": "MIT",
     "keywords": [
         "WhatsApp",
-        "TextMessage",
-        "sms"
+        "WhatsAPI"
     ],
     "authors": [
         {
-            "role": "Contributers",
-            "name": "WhatsApi Contributing Team",
-            "homepage": "https://github.com/mgp25/WhatsAPI-Official/graphs/contributors"
+            "role": "Contributors",
+            "name": "Chat API Contributing Team",
+            "homepage": "https://github.com/mgp25/Chat-API/graphs/contributors"
         }
     ],
     "support": {
-        "issues": "https://github.com/mgp25/WhatsAPI-Official/issues",
-        "wiki": "https://github.com/mgp25/WhatsAPI-Official/wiki",
-        "source": "https://github.com/mgp25/WhatsAPI-Official"
+        "issues": "https://github.com/mgp25/Chat-API/issues",
+        "wiki": "https://github.com/mgp25/Chat-API/wiki",
+        "source": "https://github.com/mgp25/Chat-API"
     },
     "autoload": {
         "classmap": [
@@ -27,9 +26,11 @@
     },
     "require": {
         "php": ">=5.3",
-        "ext-curl": "*"
-    },
-    "suggest": {
-        "williamson/larawhatsapi": "A laravel Wrapper for WhatsApi"
+        "ext-curl": "*",
+        "ext-gd" : "*",
+        "ext-sockets" : "*",
+        "ext-openssl" : "*",
+        "ext-pdo" : "*",
+        "ext-sqlite3" : "*"
     }
 }
