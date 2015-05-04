@@ -1654,7 +1654,7 @@ class WhatsProt
         $messageHash["type"] = "read";
         $messageHash["to"] = $to;
         $messageHash["id"] = $id;
-        $messageHash["t"] = time();
+//        $messageHash["t"] = time();
         $messageNode = new ProtocolNode("receipt", $messageHash, null, null);
         $this->sendNode($messageNode);
     }
@@ -2798,14 +2798,7 @@ class WhatsProt
                     $node->getAttribute('t')
                 ));
 
-            $ackNode = new ProtocolNode("ack", array(
-              "to" => $node->getAttribute('from'),
-              "id" => $node->getAttribute('id'),
-              "type" => $type,
-              "t" => time()
-              ), null, null);
-
-            $this->sendNode($ackNode);
+            $this->sendAck($node, 'receipt');
         }
         if ($node->getTag() == "message") {
             array_push($this->messageQueue, $node);
@@ -3510,7 +3503,7 @@ class WhatsProt
                 default:
                     throw new Exception("Method $type not implemented");
             }
-            $this->sendNotificationAck($node);
+            $this->sendAck($node, 'notification');
         }
         if($node->getTag() == "ib")
         {
@@ -3553,7 +3546,7 @@ class WhatsProt
     /**
      * @param $node ProtocolNode
      */
-    protected function sendNotificationAck($node)
+    protected function sendAck($node, $class)
     {
         $from = $node->getAttribute("from");
         $to = $node->getAttribute("to");
@@ -3567,9 +3560,11 @@ class WhatsProt
         if($participant)
             $attributes["participant"] = $participant;
         $attributes["to"] = $from;
-        $attributes["class"] = "notification";
+        $attributes["class"] = $class;
         $attributes["id"] = $id;
-        $attributes["type"] = $type;
+        if ($type != null)
+            $attributes["type"] = $type;
+
         $ack = new ProtocolNode("ack", $attributes, null, null);
         $this->sendNode($ack);
     }
@@ -4024,7 +4019,6 @@ class WhatsProt
         }
         $messageHash["to"] = $msg->getAttribute("from");
         $messageHash["id"] = $msg->getAttribute("id");
-        $messageHash["t"] = time();
         $messageNode = new ProtocolNode("receipt", $messageHash, null, null);
         $this->sendNode($messageNode);
         $this->eventManager()->fire("onSendMessageReceived",
