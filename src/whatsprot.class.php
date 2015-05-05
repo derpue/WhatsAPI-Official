@@ -1247,8 +1247,8 @@ class WhatsProt
             ), array($pingNode), null);
 
         $this->sendNode($node);
-        
-        return $msgId;        
+
+        return $msgId;
     }
 
     /**
@@ -1281,7 +1281,7 @@ class WhatsProt
             ), array($eligibleNode), null);
 
         $this->sendNode($node);
-        
+
         return $msgId;
     }
 
@@ -1368,9 +1368,10 @@ class WhatsProt
                 $this->phoneNumber,
                 $groupId
             ));
-        
+
         return $groupId;
     }
+
     /**
      * Change group's subject.
      *
@@ -1391,7 +1392,7 @@ class WhatsProt
             ), array($child), null);
 
         $this->sendNode($node);
-        
+
         return $msgId;
     }
 
@@ -1488,7 +1489,7 @@ class WhatsProt
             $participants = array($participants);
         }
         $this->sendGroupsChangeParticipants($gId, $participants, "promote", $msgId);
-        return $msgId;       
+        return $msgId;
     }
 
     /**
@@ -1552,7 +1553,7 @@ class WhatsProt
 
         $this->sendNode($node);
         $this->waitForServer($msgId);
-        
+
         return $msgId;
     }
 
@@ -1919,12 +1920,12 @@ class WhatsProt
                 "type" => "set",
                 "xmlns" => "w:profile:picture"
             ), array($picture, $thumb), null);
-        
+
         $this->sendNode($node);
 
         return $msgId;
 	}
-    
+
 
     /**
      * Set the recovery token for your account to allow you to retrieve your password at a later stage.
@@ -3404,7 +3405,19 @@ class WhatsProt
                     }
                     break;
                 case "web":
-                    //TODO
+                      if (($node->getChild(0)->getTag() == 'action') && ($node->getChild(0)->getAttribute('type') == 'sync'))
+                      {
+                            $data = $node->getChild(0)->getChildren();
+                            $this->eventManager()->fire("onWebSync",
+                                array(
+                                    $this->phoneNumber,
+                                    $node->getAttribute('from'),
+                                    $node->getAttribute('id'),
+                                    $data[0]->getData(),
+                                    $data[1]->getData(),
+                                    $data[2]->getData()
+                            ));
+                      }
                     break;
                 default:
                     throw new Exception("Method $type not implemented");

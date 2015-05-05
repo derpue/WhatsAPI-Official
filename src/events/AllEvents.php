@@ -45,11 +45,11 @@ abstract class AllEvents
     public function onCodeRequestFailed($mynumber, $method, $reason, $param) {}
     public function onCodeRequestFailedTooRecent($mynumber, $method, $reason, $retry_after) {}
     public function onCodeRequestFailedTooManyGuesses($mynumber, $method, $reason, $retry_after) {}
-    public function onConnect($mynumber, $socket ) {}
+    public function onConnect($mynumber, $socket) {}
     public function onConnectError($mynumber, $socket) {}
     public function onCredentialsBad($mynumber, $status, $reason) {}
     public function onCredentialsGood($mynumber, $login, $password, $type, $expiration, $kind, $price, $cost, $currency, $price_expiration) {}
-    public function onDisconnect($mynumber, $socket ) {}
+    public function onDisconnect($mynumber, $socket) {}
     public function onDissectPhone($mynumber, $phonecountry, $phonecc, $phone, $phonemcc, $phoneISO3166, $phoneISO639, $phonemnc) {}
     public function onDissectPhoneFailed($mynumber) {}
     public function onGetAudio($mynumber, $from, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $duration, $acodec, $fromJID_ifGroup = null) {}
@@ -65,7 +65,7 @@ abstract class AllEvents
     public function onGetImage($mynumber, $from, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $width, $height, $preview, $caption) {}
     public function onGetGroupImage($mynumber, $from_group_jid, $from_user_jid, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $width, $height, $preview, $caption) {}
     public function onGetGroupVideo($mynumber, $from_group_jid, $from_user_jid, $id, $type, $time, $name, $url, $file, $size, $mimeType, $fileHash, $duration, $vcodec, $acodec, $preview, $caption) {}
-    public function onGetKeysLeft($mynumber, $keysLeft){}
+    public function onGetKeysLeft($mynumber, $keysLeft) {}
     public function onGetLocation($mynumber, $from, $id, $type, $time, $name, $name, $longitude, $latitude, $url, $preview) {}
     public function onGetMessage($mynumber, $from, $id, $type, $time, $name, $body) {}
     public function onGetNormalizedJid($mynumber, $data) {}
@@ -113,11 +113,8 @@ abstract class AllEvents
     public function onSendPresence($mynumber, $type, $name) {}
     public function onSendStatusUpdate($mynumber, $txt) {}
     public function onStreamError($data) {}
+    public function onWebSync($mynumber, $from, $id, $syncData, $code, $name) {}
 
     public function onAfterServerNodeHandled($myNumber, $nodeID, ProtocolNode $node) {}
-
-
-
-
 
 }
