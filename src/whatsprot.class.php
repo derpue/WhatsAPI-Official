@@ -787,7 +787,7 @@ class WhatsProt
 
     public function sendClientConfig()
     {
-        $msgId = $this->createMsgId("config");
+        $msgId = $this->createMsgId();
 
         $attr = array();
         $attr["platform"] = Constants::WHATSAPP_DEVICE;
@@ -795,7 +795,7 @@ class WhatsProt
         $child = new ProtocolNode("config", $attr, null, "");
         $node = new ProtocolNode("iq",
             array(
-                "id" => $this->createMsgId(),
+                "id" => $msgId,
                 "type" => "set",
                 "xmlns" => "urn:xmpp:whatsapp:push",
                 "to" => Constants::WHATSAPP_SERVER
@@ -3387,6 +3387,9 @@ class WhatsProt
                                 $node->getChild(0)->getChild(0)->getAttribute('value'),
                             ));
                     }
+                    break;
+                case "web":
+                    //TODO
                     break;
                 default:
                     throw new Exception("Method $type not implemented");
