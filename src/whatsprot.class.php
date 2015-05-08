@@ -3669,7 +3669,6 @@ class WhatsProt
         $bcJID = $this->mediaQueue[$id]['bcJID'];;
         $bcListName = $this->mediaQueue[$id]['bcListName'];;
 
-        $icon = "";
         switch ($filetype) {
             case "image":
                 $caption = $this->mediaQueue[$id]['caption'];
