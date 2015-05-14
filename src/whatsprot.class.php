@@ -51,6 +51,7 @@ class WhatsProt
     protected $mediaFileInfo = array(); // Media File Information
     protected $mediaQueue = array();    // Queue for media message nodes
     protected $messageCounter = 1;      // Message counter for auto-id.
+    protected $iqCounter = 1;
     protected $messageQueue = array();  // Queue for received messages.
     protected $name;                    // The user name.
     protected $newMsgBind = false;      //
@@ -590,7 +591,7 @@ class WhatsProt
     */
     public function sendGetCipherKeysFromUser($number)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         $userNode = new ProtocolNode("user",
             array(
@@ -739,7 +740,7 @@ class WhatsProt
      */
     public function sendDeleteBroadcastLists($lists)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $listNode = array();
         if ($lists != null && count($lists) > 0) {
             for ($i = 0; $i < count($lists); $i++) {
@@ -770,7 +771,7 @@ class WhatsProt
      */
     protected function sendClearDirty($categories)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         $catnodes = array();
         foreach ($categories as $category) {
@@ -792,7 +793,7 @@ class WhatsProt
 
     public function sendClientConfig()
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         $attr = array();
         $attr["platform"] = Constants::WHATSAPP_DEVICE;
@@ -813,7 +814,7 @@ class WhatsProt
 
     public function sendGetClientConfig()
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $child = new ProtocolNode("config", null, null, null);
         $node  = new ProtocolNode("iq",
             array(
@@ -837,7 +838,7 @@ class WhatsProt
      */
     public function sendChangeNumber($number, $identity)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         $usernameNode = new ProtocolNode("username", null, null, $number);
         $passwordNode = new ProtocolNode("password", null, null, urldecode($identity));
@@ -878,7 +879,7 @@ class WhatsProt
      */
     public function sendGetGroupV2Info($groupID)
     {
-        $msgId = $this->nodeId['get_groupv2_info'] = $this->createMsgId();
+        $msgId = $this->nodeId['get_groupv2_info'] = $this->createIqId();
 
         $queryNode = new ProtocolNode("query",
             array(
@@ -904,7 +905,7 @@ class WhatsProt
      */
     public function sendGetPrivacyBlockedList()
     {
-        $msgId = $this->nodeId['privacy'] = $this->createMsgId();
+        $msgId = $this->nodeId['privacy'] = $this->createIqId();
         $child = new ProtocolNode("list",
             array(
                 "name" => "default"
@@ -929,7 +930,7 @@ class WhatsProt
      */
     public function sendGetPrivacySettings()
     {
-        $msgId = $this->nodeId['privacy_settings'] = $this->createMsgId();
+        $msgId = $this->nodeId['privacy_settings'] = $this->createIqId();
         $privacyNode = new ProtocolNode("privacy", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -956,7 +957,7 @@ class WhatsProt
      */
     public function sendSetPrivacySettings($category, $value)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $categoryNode = new ProtocolNode("category",
             array(
                 "name" => $category,
@@ -989,7 +990,7 @@ class WhatsProt
      */
     public function sendGetProfilePicture($number, $large = false)
     {
-        $msgId = $this->nodeId['getprofilepic'] = $this->createMsgId();
+        $msgId = $this->nodeId['getprofilepic'] = $this->createIqId();
 
         $hash = array();
         $hash["type"] = "image";
@@ -1022,7 +1023,7 @@ class WhatsProt
             $numbers = array($numbers);
         }
 
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         $userNode = array();
         for ($i=0; $i < count($numbers); $i++) {
@@ -1058,7 +1059,7 @@ class WhatsProt
      */
     public function sendGetRequestLastSeen($to)
     {
-        $msgId = $this->nodeId['getlastseen'] = $this->createMsgId();
+        $msgId = $this->nodeId['getlastseen'] = $this->createIqId();
 
         $queryNode = new ProtocolNode("query", null, null, null);
 
@@ -1081,7 +1082,7 @@ class WhatsProt
      */
     public function sendGetServerProperties()
     {
-        $id = $this->createMsgId();
+        $id = $this->createIqId();
         $child = new ProtocolNode("props", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -1107,7 +1108,7 @@ class WhatsProt
      */
 	public function sendGetServicePricing($lg, $lc)
 	{
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $pricingNode = new ProtocolNode("pricing",
             array(
                 "lg" => $lg,
@@ -1132,7 +1133,7 @@ class WhatsProt
 	public function sendExtendAccount()
 	{
 
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $extendingNode = new ProtocolNode("extend", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -1152,7 +1153,7 @@ class WhatsProt
 	*/
 	public function sendGetBroadcastLists()
 	{
-        $msgId = $this->nodeId['get_lists'] = $this->createMsgId();
+        $msgId = $this->nodeId['get_lists'] = $this->createIqId();
         $listsNode = new ProtocolNode("lists", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -1176,7 +1177,7 @@ class WhatsProt
      */
     public function sendGetNormalizedJid($countryCode, $number)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $ccNode = new ProtocolNode("cc", null, null, $countryCode);
         $inNode = new ProtocolNode("in", null, null, $number);
         $normalizeNode = new ProtocolNode("normalize", null, array($ccNode, $inNode), null);
@@ -1202,7 +1203,7 @@ class WhatsProt
      */
     public function sendRemoveAccount($lg = null, $lc = null, $feedback = null)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         if ($feedback != null && strlen($feedback) > 0)
         {
             if ($lg == null) {
@@ -1243,7 +1244,7 @@ class WhatsProt
      */
     public function sendPing()
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $pingNode = new ProtocolNode("ping", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -1266,7 +1267,7 @@ class WhatsProt
     public function sendGetHasVoipEnabled($jids)
     {
 
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         if (!is_array($jids))
         {
@@ -1301,7 +1302,7 @@ class WhatsProt
      */
     public function sendGetStatuses($jids)
     {
-        $msgId = $this->nodeId['getstatuses'] = $this->createMsgId();
+        $msgId = $this->nodeId['getstatuses'] = $this->createIqId();
 
         if (!is_array($jids)) {
             $jids = array($jids);
@@ -1351,7 +1352,7 @@ class WhatsProt
             ), null, null);
         }
 
-        $id = $this->nodeId['groupcreate'] = $this->createMsgId();
+        $id = $this->nodeId['groupcreate'] = $this->createIqId();
 
         $createNode = new ProtocolNode("create",
             array(
@@ -1388,7 +1389,7 @@ class WhatsProt
      */
     public function sendSetGroupSubject($gjid, $subject)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $child = new ProtocolNode("subject", null, null, $subject);
         $node = new ProtocolNode("iq",
             array(
@@ -1413,7 +1414,7 @@ class WhatsProt
      */
     public function sendGroupsLeave($gjids)
     {
-        $msgId = $this->nodeId['leavegroup'] = $this->createMsgId();
+        $msgId = $this->nodeId['leavegroup'] = $this->createIqId();
 
         if (!is_array($gjids)) {
             $gjids = array($this->getJID($gjids));
@@ -1524,7 +1525,7 @@ class WhatsProt
      */
     public function sendLockGroup($gId)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $lockedNode = new ProtocolNode("locked", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -1548,7 +1549,7 @@ class WhatsProt
      */
     public function sendUnlockGroup($gId)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $unlockedNode = new ProtocolNode("unlocked", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -1882,7 +1883,7 @@ class WhatsProt
             array(
                 "name" => "default"
             ), $items, null);
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $child2 = new ProtocolNode("query", null, array($child), null);
         $node = new ProtocolNode("iq",
             array(
@@ -1911,7 +1912,7 @@ class WhatsProt
      */
     public function sendRemoveProfilePicture()
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
 
         $picture = new ProtocolNode("picture", null, null, null);
 
@@ -1942,7 +1943,7 @@ class WhatsProt
      */
     public function sendSetRecoveryToken($token)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $child = new ProtocolNode("pin",
             array(
                 "xmlns" => "w:ch:p"
@@ -1950,7 +1951,7 @@ class WhatsProt
 
         $node = new ProtocolNode("iq",
             array(
-                "id" => $this->createMsgId(),
+                "id" => $msgId,
                 "type" => "set",
                 "to" => Constants::WHATSAPP_SERVER
             ), array($child), null);
@@ -1968,7 +1969,7 @@ class WhatsProt
      */
     public function sendStatusUpdate($txt)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->createIqId();
         $child = new ProtocolNode("status", null, null, $txt);
         $node = new ProtocolNode("iq",
             array(
@@ -2169,6 +2170,20 @@ class WhatsProt
         $this->messageCounter++;
 
         return $this->loginTime . "-" . $msgid;
+    }
+
+    /**
+     * iq id
+     *
+     * @return string
+     *    Iq id
+     */
+    protected function createIqId()
+    {
+        $iqId = $this->iqCounter;
+        $this->iqCounter++;
+
+        return dechex($iqId);
     }
 
     /**
@@ -2435,7 +2450,7 @@ class WhatsProt
                 $context = "background";
         }
 
-        $id = $this->createMsgId();
+        $id = $this->createIqId();
 
         $node = new ProtocolNode("iq",
             array(
@@ -3193,7 +3208,7 @@ class WhatsProt
         }
 
         if ($node->getTag() == "message" && $node->getAttribute('type') == "media" && $node->getChild(0)->getAttribute('type') == "image" ) {
-            $msgId = $this->createMsgId();
+            $msgId = $this->createIqId();
 
             $ackNode = new ProtocolNode("ack",
                 array(
@@ -3876,7 +3891,7 @@ class WhatsProt
      */
     protected function sendGetGroupsFiltered($type)
     {
-        $msgID = $this->nodeId['getgroups'] = $this->createMsgId();
+        $msgID = $this->nodeId['getgroups'] = $this->createIqId();
         $child = new ProtocolNode($type, null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -4021,7 +4036,7 @@ class WhatsProt
      */
     protected function sendRequestFileUpload($b64hash, $type, $size, $filepath, $to, $caption = "", $bcJID = null, $bcListName = null)
     {
-        $id = $this->createMsgId();
+        $id = $this->createIqId();
 
         if (!is_array($to)) {
             $to = $this->getJID($to);
@@ -4067,7 +4082,7 @@ class WhatsProt
      */
     protected function sendSetPicture($jid, $filepath)
     {
-        $nodeID = $this->createMsgId();
+        $nodeID = $this->createIqId();
 
         $data = preprocessProfilePicture($filepath);
         $preview = createIconGD($filepath, 96, true);
