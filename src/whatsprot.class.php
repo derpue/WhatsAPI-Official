@@ -2506,7 +2506,7 @@ class WhatsProt
      * Retrieves media file and info from either a URL or localpath
      *
      * @param string  $filepath     The URL or path to the mediafile you wish to send
-     * @param integer $maxsizebytes The maximum size in bytes the media file can be. Default 1MB
+     * @param integer $maxsizebytes The maximum size in bytes the media file can be. Default 5MB
      *
      * @return bool  false if file information can not be obtained.
      */
@@ -2517,7 +2517,7 @@ class WhatsProt
             $this->mediaFileInfo['url'] = $filepath;
 
             $image      = file_get_contents($filepath);
-            $filesize   = strlen($image);
+            $this->mediaFileInfo['filesize'] = strlen($image);
 
             $file_info = new finfo(FILEINFO_MIME_TYPE);
             $mime_type = $file_info->buffer($image);
@@ -2529,10 +2529,7 @@ class WhatsProt
                 file_put_contents($this->mediaFileInfo['filepath'], $image);
                 $size       = getimagesize($this->mediaFileInfo['filepath']);
                 $extension  = ltrim (image_type_to_extension($size[2]), '.');
-
                 $this->mediaFileInfo['fileextension'] = $extension;
-                $this->mediaFileInfo['filesize']      = $filesize;
-                unlink($this->mediaFileInfo['filepath']);
                 return true;
             } else {
                 return false;
@@ -3572,7 +3569,7 @@ class WhatsProt
         if (isset($this->mediaFileInfo['url'])) {
             if ($storeURLmedia) {
                 if (is_file($this->mediaFileInfo['filepath'])) {
-                    rename($this->mediaFileInfo['filepath'], $this->mediaFileInfo['filepath'] . $this->mediaFileInfo['fileextension']);
+                    rename($this->mediaFileInfo['filepath'], $this->mediaFileInfo['filepath'].'.'.$this->mediaFileInfo['fileextension']);
                 }
             } else {
                 if (is_file($this->mediaFileInfo['filepath'])) {
