@@ -3101,12 +3101,20 @@ class WhatsProt
             }
         }
         if ($node->getTag() == "iq" && $node->getAttribute('type') == "error") {
+            $errorType=null;
+            foreach ($this->nodeId AS $type => $nodeID) {
+                if ($nodeID == $node->getAttribute('id')) {
+                    $errorType = $type;
+                    break;
+                }
+            }
             $this->eventManager()->fire("onGetError",
                 array(
                     $this->phoneNumber,
                     $node->getAttribute('from'),
                     $node->getAttribute('id'),
-                    $node->getChild(0)
+                    $node->getChild(0),
+                    $errorType
                 ));
         }
 
