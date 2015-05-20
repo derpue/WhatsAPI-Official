@@ -904,7 +904,7 @@ class WhatsProt
      */
     public function sendGetPrivacySettings()
     {
-        $msgId = $this->createIqId();
+        $msgId = $this->nodeId['privacy_settings'] = $this->createIqId();
         $privacyNode = new ProtocolNode("privacy", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -958,7 +958,7 @@ class WhatsProt
      */
     public function sendGetProfilePicture($number, $large = false)
     {
-        $msgId = $this->createIqId();
+        $msgId = $this->nodeId['getprofilepic'] = $this->createIqId();
 
         $hash = array();
         $hash["type"] = "image";
@@ -1024,7 +1024,7 @@ class WhatsProt
      */
     public function sendGetRequestLastSeen($to)
     {
-        $msgId = $this->createIqId();
+        $msgId = $this->nodeId['getlastseen'] = $this->createIqId();
 
         $queryNode = new ProtocolNode("query", null, null, null);
 
@@ -1245,6 +1245,9 @@ class WhatsProt
      */
     public function sendGetStatuses($jids)
     {
+
+        $msgId = $this->nodeId['getstatuses'] = $this->createIqId();
+
         if (!is_array($jids)) {
             $jids = array($jids);
         }
@@ -1259,7 +1262,7 @@ class WhatsProt
                 "to" => Constants::WHATSAPP_SERVER,
                 "type" => "get",
                 "xmlns" => "status",
-                "id" => $this->createIqId()
+                "id" => $msgId
             ), array(
                 new ProtocolNode("status", null, $children, null)
             ), null);
