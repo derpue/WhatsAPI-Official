@@ -923,7 +923,7 @@ class WhatsProt
      */
     public function sendGetPrivacySettings()
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->nodeId['privacy_settings'] = $this->createMsgId();
         $privacyNode = new ProtocolNode("privacy", null, null, null);
         $node = new ProtocolNode("iq",
             array(
@@ -983,7 +983,7 @@ class WhatsProt
      */
     public function sendGetProfilePicture($number, $large = false)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->nodeId['getprofilepic'] = $this->createMsgId();
 
         $hash = array();
         $hash["type"] = "image";
@@ -1052,7 +1052,7 @@ class WhatsProt
      */
     public function sendGetRequestLastSeen($to)
     {
-        $msgId = $this->createMsgId();
+        $msgId = $this->nodeId['getlastseen'] = $this->createMsgId();
 
         $queryNode = new ProtocolNode("query", null, null, null);
 
@@ -1295,8 +1295,8 @@ class WhatsProt
      */
     public function sendGetStatuses($jids)
     {
-        $msgId = $this->createMsgId();
-        
+        $msgId = $this->nodeId['getstatuses'] = $this->createMsgId();
+
         if (!is_array($jids)) {
             $jids = array($jids);
         }
