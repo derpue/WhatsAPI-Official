@@ -2705,6 +2705,9 @@ class WhatsProt
             }
             if ($node->getAttribute("type") == "text" && $node->getChild('body') != null) {
                 $author = $node->getAttribute("participant");
+                if ($autoReceipt) {
+                    $this->sendReceipt($node, $type, $author);
+                }
                 if ($author == "") {
                     //private chat message
                     $this->eventManager()->fire("onGetMessage",
@@ -2736,9 +2739,6 @@ class WhatsProt
                         ));
                 }
 
-                if ($autoReceipt) {
-                    $this->sendReceipt($node, $type, $author);
-                }
             }
             if ($node->getAttribute("type") == "text" && $node->getChild(0)->getTag() == 'enc') {
                 // TODO
