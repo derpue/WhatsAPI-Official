@@ -1047,6 +1047,7 @@ class WhatsProt
             ), array($listNode), null);
 
         $this->sendNode($iqNode);
+        $this->waitForServer($msgId);
 
         return true;
     }
@@ -1324,6 +1325,7 @@ class WhatsProt
             ), null);
 
         $this->sendNode($node);
+        $this->waitForServer($iqId);
 
         return $msgId;
     }
