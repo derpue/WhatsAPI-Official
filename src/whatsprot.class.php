@@ -3010,6 +3010,7 @@ class WhatsProt
                             $this->phoneNumber,
                             $blockedJids
                         ));
+                    return;
                 }
                 $this->eventManager()->fire("onGetRequestLastSeen",
                     array(
@@ -3018,7 +3019,6 @@ class WhatsProt
                         $node->getAttribute('id'),
                         $node->getChild(0)->getAttribute('seconds')
                     ));
-                array_push($this->messageQueue, $node);
             }
             if ($node->getChild("props") != null) {
                 //server properties
