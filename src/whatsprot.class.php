@@ -2724,7 +2724,7 @@ class WhatsProt
                         ));
 
                     if ($this->messageStore !== null) {
-                        $this->messageStore->saveMessage($node->getAttribute('from'), $this->phoneNumber, $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
+                        $this->messageStore->saveMessage(ExtractNumber($node->getAttribute('from')), $this->phoneNumber, $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
                     }
                 } else {
                     //group chat message
@@ -2740,7 +2740,7 @@ class WhatsProt
                             $node->getChild("body")->getData()
                         ));
                     if ($this->messageStore !== null) {
-                        $this->messageStore->saveMessage($author,$node->getAttribute('from'), $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
+                        $this->messageStore->saveMessage($author, $node->getAttribute('from'), $node->getChild("body")->getData(), $node->getAttribute('id'), $node->getAttribute('t'));
                     }
                 }
 
