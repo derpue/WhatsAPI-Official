@@ -1303,8 +1303,6 @@ class WhatsProt
      */
     public function sendGetStatuses($jids)
     {
-        $msgId = $this->nodeId['getstatuses'] = $this->createIqId();
-
         if (!is_array($jids)) {
             $jids = array($jids);
         }
@@ -1314,12 +1312,14 @@ class WhatsProt
             $children[] = new ProtocolNode("user", array("jid" => $this->getJID($jid)), null, null);
         }
 
+        $iqId = $this->nodeId['getstatuses'] = $this->createIqId();
+
         $node = new ProtocolNode("iq",
             array(
                 "to" => Constants::WHATSAPP_SERVER,
                 "type" => "get",
                 "xmlns" => "status",
-                "id" => $msgId
+                "id" => $iqId
             ), array(
                 new ProtocolNode("status", null, $children, null)
             ), null);
@@ -1327,7 +1327,7 @@ class WhatsProt
         $this->sendNode($node);
         $this->waitForServer($iqId);
 
-        return $msgId;
+        return $iqId;
     }
 
     /**
