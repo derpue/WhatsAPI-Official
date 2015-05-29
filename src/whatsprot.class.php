@@ -2311,7 +2311,7 @@ class WhatsProt
             $this->sendNode($data);
             $this->reader->setKey($this->inputKey);
             $this->writer->setKey($this->outputKey);
-            $this->pollMessage();
+            while (!$this->pollMessage()) {};
         }
 
         if ($this->loginStatus === Constants::DISCONNECTED_STATUS) {
