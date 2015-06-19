@@ -1970,6 +1970,7 @@ class WhatsProt
             ), array($child), null);
 
         $this->sendNode($node);
+        $this->waitForServer($msgId);
         $this->eventManager()->fire("onSendStatusUpdate",
             array(
                 $this->phoneNumber,
