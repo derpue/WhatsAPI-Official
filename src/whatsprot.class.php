@@ -2989,6 +2989,7 @@ class WhatsProt
 
             $this->eventManager()->fire("onGetSyncResult",
                 array(
+                    $this->phoneNumber,
                     $result
                 ));
         }

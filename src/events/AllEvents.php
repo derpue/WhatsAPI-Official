@@ -76,7 +76,7 @@ abstract class AllEvents
     public function onGetServerProperties( $mynumber, $version, $props ){}
     public function onGetServicePricing( $mynumber, $price, $cost, $currency, $expiration ){}
     public function onGetStatus( $mynumber, $from, $requested, $id, $time, $data ){}
-    public function onGetSyncResult( $result ){}
+    public function onGetSyncResult( $mynumber, $result ){}
     public function onGetVideo( $mynumber, $from, $id, $type, $time, $name, $url, $file, $size, $mimeType, $fileHash, $duration, $vcodec, $acodec, $preview, $caption ){}
     public function onGetvCard($mynumber, $from, $id, $type, $time, $name, $vcardname, $vcard, $fromJID_ifGroup = null) {}
     public function onGroupCreate( $mynumber, $groupId ){}
