@@ -3377,6 +3377,18 @@ class WhatsProt
                             )
                         );
                     }
+                    else if ($node->hasChild('modify')) {
+                        $this->eventManager()->fire("onGroupsParticipantChangedNumber",
+                            array(
+                                $this->phoneNumber,
+                                $node->getAttribute('from'),
+                                $node->getAttribute('t'),
+                                $node->getAttribute('participant'),
+                                $node->getAttribute('notify'),
+                                $node->getChild(0)->getChild(0)->getAttribute('jid')
+                            )
+                        );
+                    }
                     break;
                 case "account":
                     if (($node->getChild(0)->getAttribute('author')) == "")

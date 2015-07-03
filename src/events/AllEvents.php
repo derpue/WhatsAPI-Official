@@ -66,7 +66,7 @@ abstract class AllEvents
     public function onGetGroupImage($mynumber, $from_group_jid, $from_user_jid, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $width, $height, $preview, $caption) {}
     public function onGetGroupVideo($mynumber, $from_group_jid, $from_user_jid, $id, $type, $time, $name, $url, $file, $size, $mimeType, $fileHash, $duration, $vcodec, $acodec, $preview, $caption) {}
     public function onGetKeysLeft($mynumber, $keysLeft) {}
-    public function onGetLocation($mynumber, $from, $id, $type, $time, $name, $name, $longitude, $latitude, $url, $preview) {}
+    public function onGetLocation($mynumber, $from, $id, $type, $time, $name, $author, $longitude, $latitude, $url, $preview, $fromJID_ifGroup = null) {}
     public function onGetMessage($mynumber, $from, $id, $type, $time, $name, $body) {}
     public function onGetNormalizedJid($mynumber, $data) {}
     public function onGetPrivacyBlockedList($mynumber, $data) {}
@@ -84,7 +84,8 @@ abstract class AllEvents
                                                 $groupMembers, $groupAdmins, $issuerJID, $issuerName, $notificationTime, $creationType){}
     public function onGroupsChatCreate($mynumber, $gid) {}
     public function onGroupsChatEnd($mynumber, $gid) {}
-    public function onGroupsParticipantsAdd($mynumber, $groupId, $jid, $decider_name, $decider_jid){}
+    public function onGroupsParticipantsAdd($mynumber, $groupId, $jid, $decider_name, $decider_jid) {}
+    public function onGroupsParticipantChangedNumber($mynumber, $groupId, $time, $oldNumber, $notify, $newNumber) {}
     public function onGroupsParticipantsPromote($myNumber, $groupJID, $time, $issuerJID, $issuerName, $promotedJIDs = array()) {}
     public function onGroupsParticipantsRemove($mynumber, $groupId, $jid) {}
     public function onLogin($mynumber) {}
