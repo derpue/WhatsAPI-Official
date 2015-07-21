@@ -577,7 +577,11 @@ class WhatsProt
             // Something to read
             if ($stanza = $this->readStanza()) {
                 $this->processInboundData($stanza, $autoReceipt, $type);
+                $this->timeout = null;
                 return true;
+            }
+            else {
+              $s = 0;
             }
         }
 
@@ -592,9 +596,6 @@ class WhatsProt
               $this->disconnect();
               throw new ConnectionException('Connectivity error');
             }
-        }
-        else {
-          $this->timeout = null;
         }
 
         return false;
