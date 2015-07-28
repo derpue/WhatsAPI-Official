@@ -1263,6 +1263,7 @@ class WhatsProt
             ), array($removeNode), null);
 
         $this->sendNode($node);
+        $this->waitForServer($msgId);
 
         return $msgId;
     }
