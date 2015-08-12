@@ -1613,10 +1613,10 @@ class WhatsProt
             $allowedExtensions = array('3gp', 'caf', 'wav', 'mp3', 'wma', 'ogg', 'aif', 'aac', 'm4a');
             $size = 10 * 1024 * 1024; // Easy way to set maximum file size for this media type.
             // Return message ID. Make pull request for this.
-            return $this->sendCheckAndSendMedia($filepath, $size, $to, 'audio', $allowedExtensions, $storeURLmedia, $bcJID, $bcListName);
+            return $this->sendCheckAndSendMedia($filepath, $size, $to, 'audio', $allowedExtensions, $storeURLmedia, "", $bcJID, $bcListName);
         } else {
             // Return message ID. Make pull request for this.
-            return $this->sendRequestFileUpload($fhash, 'audio', $fsize, $filepath, $to, $bcJID, $bcListName);
+            return $this->sendRequestFileUpload($fhash, 'audio', $fsize, $filepath, $to, "", $bcJID, $bcListName);
         }
     }
 
