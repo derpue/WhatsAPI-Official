@@ -1501,16 +1501,14 @@ class WhatsProt
      * Remove participant(s) from a group.
      *
      * @param string $groupId      The group ID.
-     * @param mixed  $participants An array with the participants numbers to remove
+     * @param string $participant  The number of the participant you want to remove
      * @return string
      */
-    public function sendGroupsParticipantsRemove($groupId, $participants)
+    public function sendGroupsParticipantsRemove($groupId, $participant)
     {
         $msgId = $this->createMsgId();
-        if (!is_array($participants)) {
-            $participants = array($participants);
-        }
-        $this->sendGroupsChangeParticipants($groupId, $participants, 'remove', $msgId);
+
+        $this->sendGroupsChangeParticipants($groupId, (array) $participant, 'remove', $msgId);
 
         return $msgId;
     }
