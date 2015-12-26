@@ -65,12 +65,13 @@ class WhatsProt
     protected $voice;
     protected $timeout = 0;
     protected $sessionCiphers = array();
-    protected $v2Jids = array();
+    public $v2Jids = array();
     protected $groupCiphers = array();
     protected $pending_nodes = array();
     protected $replaceKey;
-    protected $retryCounter = 1;
+    public $retryCounters = [];
     protected $readReceipts = true;
+    public $retryNodes = [];
     public $axolotlStore;
     public $writer;                  // An instance of the BinaryTreeNodeWriter class.
     public $reader;                  // An instance of the BinaryTreeNodeReader class.
@@ -337,6 +338,7 @@ class WhatsProt
         $prekeys[] = new ProtocolNode('key', null, array($id, $value), null); // 200 PreKeys
 
       }
+
       if ($new)
         $registrationId = $this->axolotlStore->getLocalRegistrationId();
       else
@@ -409,12 +411,36 @@ class WhatsProt
         return $msgId;
     }
 
-    public function sendRetry($to, $id, $t, $participant = null)
+    public function resetEncryption(){
+        if($this->axolotlStore) $this->axolotlStore->clear();
+        $this->retryCounters = [];
+        $this->sendSetPreKeys();
+        $this->pollMessage();
+        $this->pollMessage();
+        $this->disconnect();
+        $this->connect();
+        $this->loginWithPassword($this->password);
+        foreach($this->retryNodes as $node){
+            $this->processInboundDataNode($node);
+        }
+    }
+
+    public function sendRetry($node,$to, $id, $t, $participant = null)
     {
+      if(!isset($this->retryCounters[$id])) $this->retryCounters[$id] = 1;
+      else{
+        if(!isset($this->retryNodes[$id]) ){
+            $this->retryNodes[$id] = $node;
+
+        }
+        else if($this->retryCounters[$id] > 2){
+            $this->resetEncryption();
+        }
+      }
       $retryNode = new ProtocolNode("retry",
         array(
           "v" => "1",
-          "count" => $this->retryCounter,
+          "count" => $this->retryCounters[$id],
           "id" => $id,
           "t" => $t
         ), null, null);
@@ -438,7 +464,7 @@ class WhatsProt
                 "type" => "retry",
                 "t" => $t
             ), array($retryNode, $registrationNode), null);
-            $this->retryCounter++;
+            $this->retryCounters[$id]++;
 
 
       }
@@ -606,7 +632,7 @@ class WhatsProt
      * @param  array $categories
      * @return string
      */
-    protected function sendClearDirty($categories)
+    public function sendClearDirty($categories)
     {
         $msgId = $this->createIqId();
 
@@ -633,7 +659,7 @@ class WhatsProt
         $msgId = $this->createIqId();
 
         $attr = array();
-        $attr["platform"] = Constants::WHATSAPP_DEVICE;
+        $attr["platform"] = Constants::PLATFORM;
         $attr["version"] = Constants::WHATSAPP_VER;
         $child = new ProtocolNode("config", $attr, null, "");
         $node = new ProtocolNode("iq",
@@ -662,7 +688,6 @@ class WhatsProt
             ), array($child), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -757,7 +782,6 @@ class WhatsProt
             ), array($child2), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -778,7 +802,6 @@ class WhatsProt
             ), array($privacyNode), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -811,7 +834,6 @@ class WhatsProt
             ), array($privacyNode), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -845,7 +867,6 @@ class WhatsProt
             ), array($picture), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -884,7 +905,6 @@ class WhatsProt
             ), array($listNode), null);
 
         $this->sendNode($iqNode);
-        $this->waitForServer($msgId);
 
         return true;
     }
@@ -1102,7 +1122,6 @@ class WhatsProt
             ), null);
 
         $this->sendNode($node);
-        $this->waitForServer($iqId);
 
         return $iqId;
     }
@@ -1221,7 +1240,6 @@ class WhatsProt
             ), array($leave), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -1318,6 +1336,7 @@ class WhatsProt
             {
               $version = "2";
               $plaintext = padMessage($plaintext);
+
             }
             else
               $version = "1";
@@ -1335,17 +1354,20 @@ class WhatsProt
               ), null, $message);
         }
         else {
-        /*  $type = "skmsg";
-          if (in_array($to, $this->v2Jids))
+          $type = "skmsg";
+         /* if (in_array($to, $this->v2Jids))
           {
             $version = "2";
             $plaintext = padMessage($plaintext);
           }
           else
             $version = "1";
-          die("NOT IMPLEMENTED\n");
-          //$message = "\x03".openssl_random_pseudo_bytes(30);*/
-         //NOT IMPLEMENTED GROUP ENCRIPTED MESSAGE";
+
+          if(!$this->axolotlStore->containsSenderKey($to)){
+            $gsb = new GroupSessionBuilder($this->axolotlStore);
+            $senderKey = $gsb->process ($groupId, $keyId, $iteration, $chainKey, $signatureKey)
+          }
+          $thi*/
           $msgNode = new ProtocolNode("body", null, null, $plaintext);
         }
 
@@ -1452,7 +1474,7 @@ class WhatsProt
 
         $id = (is_array($to)) ? $this->sendBroadcast($to, $mediaNode, "media", $bcJID, $bcListName) : $this->sendMessageNode($to, $mediaNode);
 
-        $this->waitForServer($id);
+        //$this->waitForServer($id);
 
         // Return message ID. Make pull request for this.
         return $id;
@@ -1557,6 +1579,7 @@ class WhatsProt
         }
 
         $presence['name'] = $this->name;
+        $presence['type'] = "available";
         $node = new ProtocolNode("presence", $presence, null, "");
         $this->sendNode($node);
     }
@@ -1694,7 +1717,6 @@ class WhatsProt
         return $msgId;
 	}
 
-
     /**
      * Set the recovery token for your account to allow you to retrieve your password at a later stage.
      *
@@ -1740,7 +1762,6 @@ class WhatsProt
             ), array($child), null);
 
         $this->sendNode($node);
-        $this->waitForServer($nodeID);
         $this->eventManager()->fire("onSendStatusUpdate",
             array(
                 $this->phoneNumber,
@@ -1854,7 +1875,24 @@ class WhatsProt
      */
     protected function createMsgId()
     {
-        return $this->messageId . dechex($this->messageCounter++);
+        $msg = hex2bin($this->messageId);
+        $chars = str_split($msg);
+        $chars_val = array_map("ord", $chars);
+        $pos = count($chars_val)-1;
+        while(true){
+            if($chars_val[$pos] < 255){
+                 $chars_val[$pos]++;
+                 break;
+            }
+            else{
+                $chars_val[$pos] = 0;
+                $pos--;
+            }
+        }
+        $chars = array_map("chr",$chars_val);
+        $msg = bin2hex(implode($chars));
+        $this->messageId = $msg;
+        return $this->messageId;
     }
 
     /**
@@ -1867,8 +1905,10 @@ class WhatsProt
     {
         $iqId = $this->iqCounter;
         $this->iqCounter++;
-
-        return dechex($iqId);
+        $id = dechex($iqId);
+        if(strlen($id) % 2 == 1)
+            $id = str_pad($id,strlen($id)+1,"0",STR_PAD_LEFT);
+        return $id;
     }
 
     /**
@@ -1986,7 +2026,12 @@ class WhatsProt
                     array(
                         "mode" => $mode,
                         "context" => $context,
-                        "sid" => "".((time() + 11644477200) * 10000000),
+                        "sid" => "sync_sid_full_".sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ),
+                        mt_rand( 0, 0xffff ),
+                        mt_rand( 0, 0x0fff ) | 0x4000,
+                        mt_rand( 0, 0x3fff ) | 0x8000,
+                        mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff ), mt_rand( 0, 0xffff )),
                         "index" => "0",
                         "last" => "true"
                     ), $users, null)
@@ -2203,6 +2248,7 @@ class WhatsProt
             $this->sendAck($node, 'receipt');
         }
         if ($node->getTag() == "message") {
+
             $handler = new MessageHandler($this, $node);
         }
         if ($node->getTag() == "presence" && $node->getAttribute("status") == "dirty") {
@@ -2258,26 +2304,49 @@ class WhatsProt
             }
         }
         if (strcmp($node->getTag(), "chatstate") == 0
-            && strncmp($node->getAttribute('from'), $this->phoneNumber, strlen($this->phoneNumber)) != 0
-            && strpos($node->getAttribute('from'), "-") === false) {
-            if($node->getChild(0)->getTag() == "composing"){
+            && strncmp($node->getAttribute('from'), $this->phoneNumber, strlen($this->phoneNumber)) != 0) { // remove if isn't group
+            if(strpos($node->getAttribute('from'), "-") === false){
+              if($node->getChild(0)->getTag() == "composing"){
                 $this->eventManager()->fire("onMessageComposing",
-                    array(
-                        $this->phoneNumber,
-                        $node->getAttribute('from'),
-                        $node->getAttribute('id'),
-                        "composing",
-                        $node->getAttribute('t')
-                    ));
-            } else {
+                  array(
+                    $this->phoneNumber,
+                    $node->getAttribute('from'),
+                    $node->getAttribute('id'),
+                    "composing",
+                    $node->getAttribute('t')
+                  ));
+              } else {
                 $this->eventManager()->fire("onMessagePaused",
+                  array(
+                    $this->phoneNumber,
+                    $node->getAttribute('from'),
+                    $node->getAttribute('id'),
+                    "paused",
+                    $node->getAttribute('t')
+                  ));
+                }
+            }else{
+                if($node->getChild(0)->getTag() == "composing"){
+                  $this->eventManager()->fire("onGroupMessageComposing",
                     array(
-                        $this->phoneNumber,
-                        $node->getAttribute('from'),
-                        $node->getAttribute('id'),
-                        "paused",
-                        $node->getAttribute('t')
+                      $this->phoneNumber,
+                      $node->getAttribute('from'),
+                      $node->getAttribute('participant'),
+                      $node->getAttribute('id'),
+                      "composing",
+                      $node->getAttribute('t')
                     ));
+                } else {
+                  $this->eventManager()->fire("onGroupMessagePaused",
+                    array(
+                      $this->phoneNumber,
+                      $node->getAttribute('from'),
+                      $node->getAttribute('participant'),
+                      $node->getAttribute('id'),
+                      "paused",
+                      $node->getAttribute('t')
+                    ));
+                }
             }
         }
         if ($node->getTag() == "receipt") {
@@ -2402,12 +2471,12 @@ class WhatsProt
         if ($participant)
             $attributes["participant"] = $participant;
         if ($isGroup)
-            $attributes["count"] = $this->retryCounter;
+            $attributes["count"] = $this->retryCounters[$id];
         $attributes["to"] = $from;
         $attributes["class"] = $class;
         $attributes["id"] = $id;
-        if ($node->getAttribute("id") != null)
-          $attributes["t"] = $node->getAttribute("t");
+    //  if ($node->getAttribute("id") != null)
+    //    $attributes["t"] = $node->getAttribute("t");
         if ($type != null)
             $attributes["type"] = $type;
 
@@ -2606,8 +2675,12 @@ class WhatsProt
     public function readStanza()
     {
         $buff = '';
+
         if ($this->isConnected()) {
+
             $header = @socket_read($this->socket, 3);//read stanza header
+           // if($header !== false && strlen($header) > 1){
+
             if ($header === false) {
                 $this->eventManager()->fire("onClose",
                     array(
@@ -2616,7 +2689,6 @@ class WhatsProt
                     )
                 );
             }
-
             if (strlen($header) == 0) {
                 //no data received
                 return;
@@ -2742,6 +2814,7 @@ class WhatsProt
      */
     public function sendData($data)
     {
+
         if ($this->isConnected()) {
             if (socket_write($this->socket, $data, strlen($data)) === false) {
               $this->eventManager()->fire("onClose",
@@ -2772,7 +2845,6 @@ class WhatsProt
             ), array($child), null);
 
         $this->sendNode($node);
-        $this->waitForServer($msgID);
 
         return $msgID;
     }
@@ -2802,7 +2874,6 @@ class WhatsProt
             ), array($child), "");
 
         $this->sendNode($node);
-        $this->waitForServer($id);
     }
 
     /**
@@ -2843,7 +2914,7 @@ class WhatsProt
                 $node
             ));
 
-        $this->waitForServer($msgId);
+       // $this->waitForServer($msgId);
 
         return $msgId;
     }
@@ -2993,7 +3064,6 @@ class WhatsProt
         ), array($picture, $preview), null);
 
         $this->sendNode($node);
-        $this->waitForServer($nodeID);
     }
 
     /**
@@ -3050,9 +3120,9 @@ class WhatsProt
       $this->v2Jids[] = $author;
     }
 
-    public function setRetryCounter($counter)
+    public function setRetryCounter($id,$counter)
     {
-      $this->retryCounter = $counter;
+      $this->retryCounters[$id] = $counter;
     }
 
     public function setGroupId($id)
