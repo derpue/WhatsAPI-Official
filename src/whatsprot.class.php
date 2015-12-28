@@ -1354,7 +1354,6 @@ class WhatsProt
               ), null, $message);
         }
         else {
-          $type = "skmsg";
          /* if (in_array($to, $this->v2Jids))
           {
             $version = "2";
