@@ -1,6 +1,8 @@
 <?php
 set_time_limit(10);
-require_once '../src/whatsprot.class.php';
+require_once __DIR__.'/../src/whatsprot.class.php';
+require_once __DIR__.'/../src//events/MyEvents.php';
+
 //Change to your time zone
 date_default_timezone_set('Europe/Madrid');
 
@@ -53,7 +55,7 @@ function onPresenceAvailable($username, $from)
 function onPresenceUnavailable($username, $from, $last)
 {
     $dFrom = str_replace(array("@s.whatsapp.net","@g.us"), "", $from);
-    echo "<$dFrom is offline>\n\n";
+    echo "<$dFrom is offline> Last seen: $last seconds\n\n";
 }
 
 echo "[] Logging in as '$nickname' ($username)\n";
@@ -89,7 +91,7 @@ $w->sendMessageImage($target, "demo/x3.jpg");
 //$w->sendMessageAudio($target, 'http://www.kozco.com/tech/piano2.wav');
 
 //send Location
-//$w->sendLocation($target, '4.948568', '52.352957');
+//$w->sendMessageLocation($target, '4.948568', '52.352957');
 
 // Implemented out queue messages and auto msgid
 $w->sendMessage($target, "Guess the number :)");
@@ -129,7 +131,7 @@ while (1) {
                 break;
             case "/lastseen":
                 echo "[] last seen: ";
-                $w->sendGetRequestLastSeen($target);
+                $w->sendPresenceSubscription($target);
                 break;
             default:
                 $w->sendMessage($target , $line);
@@ -159,21 +161,23 @@ class ProcessNode
     {
         // Example of process function, you have to guess a number (psss it's 5)
         // If you guess it right you get a gift
-        $text = $node->getChild('body');
-        $text = $text->getData();
-        if ($text && ($text == "5" || trim($text) == "5")) {
-            $this->wp->sendMessageImage($this->target, "https://s3.amazonaws.com/f.cl.ly/items/2F3U0A1K2o051q1q1e1G/baby-nailed-it.jpg");
-            $this->wp->sendMessage($this->target, "Congratulations you guessed the right number!");
-        }
-        elseif (ctype_digit($text)) {
-            if ((int)$text != "5")
-                $this->wp->sendMessage($this->target, "I'm sorry, try again!");
-        }
-        $text = $node->getChild('body');
-        $text = $text->getData();
-        $notify = $node->getAttribute("notify");
+        if ($node->getAttribute("type") == 'text')
+        {
+            $text = $node->getChild('body');
+            $text = $text->getData();
+            if ($text && ($text == "5" || trim($text) == "5")) {
+                $this->wp->sendMessageImage($this->target, "https://s3.amazonaws.com/f.cl.ly/items/2F3U0A1K2o051q1q1e1G/baby-nailed-it.jpg");
+                $this->wp->sendMessage($this->target, "Congratulations you guessed the right number!");
+            }
+            elseif (ctype_digit($text)) {
+              if ((int)$text != "5")
+                  $this->wp->sendMessage($this->target, "I'm sorry, try again!");
+            }
+            $text = $node->getChild('body');
+            $text = $text->getData();
+            $notify = $node->getAttribute("notify");
 
-        echo "\n- ".$notify.": ".$text."    ".date('H:i')."\n";
-
+            echo "\n- ".$notify.": ".$text."    ".date('H:i')."\n";
+        }
     }
 }
