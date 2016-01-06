@@ -45,7 +45,7 @@ class WhatsProt
     protected $groupList = array();     // An array with all the groups a user belongs in.
     protected $outputKey;               // Instances of the KeyStream class.
     protected $groupId = false;         // Id of the group created.
-    protected $lastId = false;          // Id to the last message sent.
+    public $lastId = false;          // Id to the last message sent.
     protected $loginStatus;             // Holds the login status.
     protected $mediaFileInfo = array(); // Media File Information
     protected $mediaQueue = array();    // Queue for media message nodes
@@ -1903,7 +1903,7 @@ class WhatsProt
      * @return string
      *    Iq id
      */
-    protected function createIqId()
+    public function createIqId()
     {
         $iqId = $this->iqCounter;
         $this->iqCounter++;
@@ -1947,7 +1947,7 @@ class WhatsProt
      *
      * @return bool
      */
-    protected function isLoggedIn(){
+    public function isLoggedIn(){
         //If you aren't connected you can't be logged in! ($this->isConnected())
         //We are connected - but are we logged in? (the rest)
         return ($this->isConnected() && !empty($this->loginStatus) && $this->loginStatus === Constants::CONNECTED_STATUS);
@@ -2062,7 +2062,7 @@ class WhatsProt
      *  Number to process
      * @return string
      */
-    protected function getJID($number)
+    public function getJID($number)
     {
         if (!stristr($number, '@')) {
             //check if group message
