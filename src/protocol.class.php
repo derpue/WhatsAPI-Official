@@ -24,9 +24,13 @@ class IncompleteMessageException extends CustomException
 
 class ProtocolNode
 {
+    /** @var String */
     private $tag;
+    /** @var String[] */
     private $attributeHash;
+    /** @var ProtocolNode[] */
     private $children;
+    /** @var String */
     private $data;
     private static $cli = null;
 
@@ -90,17 +94,18 @@ class ProtocolNode
     }
 
     /**
-     * @param ProtocolNode $node
+     * @param String $tag
+     * @param String[] $attrs
      */
     public function removeChild($tag, $attrs = [])
     {
         if ($this->children) {
             if (is_int($tag)) {
-                if (isset($this->childen[$tag])) {
+                if (isset($this->children[$tag])) {
                     array_slice($this->children, $tag, 1);
                 }
             } else {
-                foreach ($this->childen as $i => $child) {
+                foreach ($this->children as $i => $child) {
                     $index = -1;
                     if (strcmp($child->tag, $tag) == 0) {
                         $index = $i;
@@ -216,7 +221,7 @@ class ProtocolNode
      * @param $tag
      * @param array $attrs
      *
-     * @return ProtocolNode
+     * @return ProtocolNode|null
      */
     public function getChild($tag, $attrs = [])
     {
@@ -226,7 +231,7 @@ class ProtocolNode
                 if (isset($this->children[$tag])) {
                     return $this->children[$tag];
                 } else {
-                    return;
+                    return null;
                 }
             }
             foreach ($this->children as $child) {
@@ -249,7 +254,7 @@ class ProtocolNode
             }
         }
 
-        return;
+        return null;
     }
 
     /**

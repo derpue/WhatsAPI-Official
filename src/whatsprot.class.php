@@ -12,6 +12,7 @@ require_once 'rc4.php';
 require_once 'mediauploader.php';
 require_once 'keystream.class.php';
 require_once 'tokenmap.class.php';
+require_once 'NewMsgBindInterface.php';
 require_once 'events/WhatsApiEventsManager.php';
 require_once 'SqliteMessageStore.php';
 require_once 'SqliteAxolotlStore.php';
@@ -51,7 +52,7 @@ class WhatsProt
     protected $iqCounter = 1;
     protected $messageQueue = [];  // Queue for received messages.
     protected $name;                    // The user name.
-    protected $newMsgBind = false;      //
+    protected $newMsgBind = null;      // Implemntation of NewMsgBindInterface
     protected $outQueue = [];      // Queue for outgoing messages.
     protected $password;                // The user password.
     protected $phoneNumber;             // The user phone number including the country code without '+' or '00'.
@@ -1763,9 +1764,9 @@ class WhatsProt
     /**
      * Sets the bind of the new message.
      *
-     * @param $bind
+     * @param NewMsgBindInterface $bind
      */
-    public function setNewMessageBind($bind)
+    public function setNewMessageBind(NewMsgBindInterface $bind)
     {
         $this->newMsgBind = $bind;
     }
@@ -2999,6 +3000,9 @@ class WhatsProt
         }
     }
 
+    /**
+     * @return SessionCipher
+     */
     public function getSessionCipher($number)
     {
         if (isset($this->sessionCiphers[$number])) {
@@ -3010,6 +3014,9 @@ class WhatsProt
         }
     }
 
+    /**
+     * @return GroupCipher
+     */
     public function getGroupCipher($groupId)
     {
         if (!isset($this->groupCiphers[$groupId])) {
@@ -3084,6 +3091,9 @@ class WhatsProt
         return $this->pending_nodes;
     }
 
+    /**
+     * @return NewMsgBindInterface
+     */
     public function getNewMsgBind()
     {
         return $this->newMsgBind;
@@ -3094,6 +3104,9 @@ class WhatsProt
         return $this->messageStore;
     }
 
+    /**
+     * @return axolotlSqliteStore
+     */
     public function getAxolotlStore()
     {
         return $this->axolotlStore;
