@@ -123,7 +123,7 @@ class WhatsProt
 
         //wadata/nextChallenge.12125557788.dat
         $this->challengeFilename = sprintf('%snextChallenge.%s.dat', $this->dataFolder, $number);
-        $this->messageStore = new SqliteMessageStore($number);
+        //$this->messageStore = new SqliteMessageStore($number);
         $this->log = $log;
         if ($log) {
             $this->logger = new Logger($this->dataFolder.
