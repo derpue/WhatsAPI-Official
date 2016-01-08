@@ -457,7 +457,7 @@ class MessageHandler implements Handler
                                 $senderKeyGroupMessage = $senderKeyGroupMessage->getSenderKey();
                             }
                             $senderKey = new SenderKeyDistributionMessage(null, null, null, null, $senderKeyGroupMessage->getSenderKey());
-                            $groupSessionBuilder = new GroupSessionBuilder($this->parent->axolotlStore);
+                            $groupSessionBuilder = new GroupSessionBuilder($this->parent->getAxolotlStore());
                             $groupSessionBuilder->processSender($group_number . ':' . $author, $senderKey);
                             if (isset($message)) {
                                 $this->parent->sendReceipt($node, 'receipt', $this->parent->getJID($this->phoneNumber));

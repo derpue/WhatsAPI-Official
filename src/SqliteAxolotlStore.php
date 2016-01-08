@@ -36,6 +36,8 @@ interface axolotlInterface
 
     public function getLocalRegistrationId();
 
+    public function clearRecipient($recipientId);
+
     public function isTrustedIdentity($recipientId, $identityKey);
 
     public function saveIdentity($recipientId, $identityKey);

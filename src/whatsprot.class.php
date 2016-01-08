@@ -72,7 +72,7 @@ class WhatsProt
     public $retryCounters = [];
     protected $readReceipts = true;
     public $retryNodes = [];
-    public $axolotlStore;
+    protected $axolotlStore;
     public $writer;                  // An instance of the BinaryTreeNodeWriter class.
     public $reader;                  // An instance of the BinaryTreeNodeReader class.
     public $logger;
@@ -3105,7 +3105,7 @@ class WhatsProt
     }
 
     /**
-     * @return axolotlSqliteStore
+     * @return axolotlInterface
      */
     public function getAxolotlStore()
     {
