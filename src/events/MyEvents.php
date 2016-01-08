@@ -1,4 +1,5 @@
 <?php
+
 require 'AllEvents.php';
 
 class MyEvents extends AllEvents
@@ -6,9 +7,10 @@ class MyEvents extends AllEvents
     /**
      * This is a list of all current events. Uncomment the ones you wish to listen to.
      * Every event that is uncommented - should then have a function below.
+     *
      * @var array
      */
-    public $activeEvents = array(
+    public $activeEvents = [
 //        'onClose',
 //        'onCodeRegister',
 //        'onCodeRegisterFailed',
@@ -75,7 +77,7 @@ class MyEvents extends AllEvents
 //        'onUploadFile',
 //        'onUploadFileFailed',
 //        'onAfterServerNodeHandled',
-    );
+    ];
 
     public function onConnect($mynumber, $socket)
     {
