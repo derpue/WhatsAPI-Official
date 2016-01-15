@@ -472,6 +472,7 @@ class WhatsProt
                 'type' => 'retry',
                 't'    => $t,
             ], [$retryNode, $registrationNode], null);
+	    if(!isset($this->retryCounters[$id])) $this->retryCounters[$id] = 0;
             $this->retryCounters[$id]++;
         }
         $this->sendNode($node);
@@ -683,6 +684,26 @@ class WhatsProt
         $this->sendNode($node);
 
         return $msgId;
+    }
+
+    public function sendSetGCM($gcm = null)
+    {
+        if (is_null($gcm)) {
+          $gcm = getRandomGCM();
+        }
+        $attr = [];
+        $attr['platform'] = 'gcm';
+        $attr['id'] = $gcm;
+        $child = new ProtocolNode('config', $attr, null, '');
+        $node = new ProtocolNode('iq',
+            [
+                'id'    => $this->createIqId(),
+                'type'  => 'set',
+                'xmlns' => 'urn:xmpp:whatsapp:push',
+                'to'    => Constants::WHATSAPP_SERVER,
+            ], [$child], null);
+
+        $this->sendNode($node);
     }
 
     public function sendGetClientConfig()
@@ -1372,8 +1393,8 @@ class WhatsProt
         } else {
             $msgNode = new ProtocolNode('body', null, null, $plaintext);
         }
-
-        $id = $this->sendMessageNode($to, $msgNode, null);
+        $plaintextNode = new ProtocolNode('body', null, null, $plaintext);
+        $id = $this->sendMessageNode($to, $msgNode, null, $plaintextNode);
 
         if ($this->messageStore !== null) {
             $this->messageStore->saveMessage($this->phoneNumber, $to, $plaintext, $id, time());
@@ -1398,15 +1419,14 @@ class WhatsProt
     {
         $this->voice = $voice;
 
-        if ($fsize == 0 || $fhash == '') {
-            $allowedExtensions = ['3gp', 'caf', 'wav', 'mp3', 'wma', 'ogg', 'aif', 'aac', 'm4a'];
-            $size = 10 * 1024 * 1024; // Easy way to set maximum file size for this media type.
-            // Return message ID. Make pull request for this.
-            return $this->sendCheckAndSendMedia($filepath, $size, $to, 'audio', $allowedExtensions, $storeURLmedia, "", $bcJID, $bcListName);
-        } else {
-            // Return message ID. Make pull request for this.
+        if ($fsize != 0 && $fhash != '') {
             return $this->sendRequestFileUpload($fhash, 'audio', $fsize, $filepath, $to, "", $bcJID, $bcListName);
         }
+
+        $allowedExtensions = ['3gp', 'caf', 'wav', 'mp3', 'wma', 'ogg', 'aif', 'aac', 'm4a'];
+        $size = 10 * 1024 * 1024; // Easy way to set maximum file size for this media type.
+        // Return message ID. Make pull request for this.
+        return $this->sendCheckAndSendMedia($filepath, $size, $to, 'audio', $allowedExtensions, $storeURLmedia, "", $bcJID, $bcListName);
     }
 
     /**
@@ -1433,15 +1453,14 @@ class WhatsProt
      */
     public function sendMessageImage($to, $filepath, $storeURLmedia = false, $fsize = 0, $fhash = '', $caption = '', $bcJID = null, $bcListName = null)
     {
-        if ($fsize == 0 || $fhash == '') {
-            $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png'];
-            $size = 5 * 1024 * 1024; // Easy way to set maximum file size for this media type.
-            // Return message ID. Make pull request for this.
-            return $this->sendCheckAndSendMedia($filepath, $size, $to, 'image', $allowedExtensions, $storeURLmedia, $caption, $bcJID, $bcListName);
-        } else {
-            // Return message ID. Make pull request for this.
+        if ($fsize != 0 && $fhash != '') {
             return $this->sendRequestFileUpload($fhash, 'image', $fsize, $filepath, $to, $caption, $bcJID, $bcListName);
         }
+
+        $allowedExtensions = ['jpg', 'jpeg', 'gif', 'png'];
+        $size = 5 * 1024 * 1024; // Easy way to set maximum file size for this media type.
+        // Return message ID. Make pull request for this.
+        return $this->sendCheckAndSendMedia($filepath, $size, $to, 'image', $allowedExtensions, $storeURLmedia, $caption, $bcJID, $bcListName);
     }
 
     /**
@@ -1514,15 +1533,14 @@ class WhatsProt
      */
     public function sendMessageVideo($to, $filepath, $storeURLmedia = false, $fsize = 0, $fhash = '', $caption = '', $bcJID, $bcListName)
     {
-        if ($fsize == 0 || $fhash == '') {
-            $allowedExtensions = ['3gp', 'mp4', 'mov', 'avi'];
-            $size = 20 * 1024 * 1024; // Easy way to set maximum file size for this media type.
-            // Return message ID. Make pull request for this.
-            return $this->sendCheckAndSendMedia($filepath, $size, $to, 'video', $allowedExtensions, $storeURLmedia, $caption, $bcJID, $bcListName);
-        } else {
-            // Return message ID. Make pull request for this.
+        if ($fsize != 0 && $fhash != '') {
             return $this->sendRequestFileUpload($fhash, 'video', $fsize, $filepath, $to, $caption, $bcJID, $bcListName);
         }
+
+        $allowedExtensions = ['3gp', 'mp4', 'mov', 'avi'];
+        $size = 20 * 1024 * 1024; // Easy way to set maximum file size for this media type.
+        // Return message ID. Make pull request for this.
+        return $this->sendCheckAndSendMedia($filepath, $size, $to, 'video', $allowedExtensions, $storeURLmedia, $caption, $bcJID, $bcListName);
     }
 
     /**
@@ -2549,16 +2567,14 @@ class WhatsProt
      */
     protected function processTempMediaFile($storeURLmedia)
     {
-        if (isset($this->mediaFileInfo['url'])) {
-            if ($storeURLmedia) {
-                if (is_file($this->mediaFileInfo['filepath'])) {
-                    rename($this->mediaFileInfo['filepath'], $this->mediaFileInfo['filepath'].'.'.$this->mediaFileInfo['fileextension']);
-                }
-            } else {
-                if (is_file($this->mediaFileInfo['filepath'])) {
-                    unlink($this->mediaFileInfo['filepath']);
-                }
-            }
+        if (!isset($this->mediaFileInfo['url'])) {
+            return false;
+        }
+
+        if ($storeURLmedia && is_file($this->mediaFileInfo['filepath'])) {
+            rename($this->mediaFileInfo['filepath'], $this->mediaFileInfo['filepath'].'.'.$this->mediaFileInfo['fileextension']);
+        } elseif (is_file($this->mediaFileInfo['filepath'])) {
+            unlink($this->mediaFileInfo['filepath']);
         }
     }
 
@@ -2907,7 +2923,7 @@ class WhatsProt
      *
      * @return string Message ID.
      */
-    protected function sendMessageNode($to, $node, $id = null)
+    protected function sendMessageNode($to, $node, $id = null, $plaintextNode = null)
     {
         $msgId = ($id == null) ? $this->createMsgId() : $id;
         $to = $this->getJID($to);
@@ -2927,6 +2943,10 @@ class WhatsProt
         ], [$node], '');
 
         $this->sendNode($messageNode);
+
+        if ($node->getTag() == 'enc') {
+            $node = $plaintextNode;
+        }
 
         $this->logFile('info', '{type} message with id {id} sent to {to}', ['type' => $type, 'id' => $msgId, 'to' => ExtractNumber($to)]);
         $this->eventManager()->fire('onSendMessage',
@@ -2983,16 +3003,30 @@ class WhatsProt
      * Send a read receipt to a message.
      *
      * @param string $to The recipient.
-     * @param string $id
+     * @param mixed String or Array $id
      */
     public function sendMessageRead($to, $id)
     {
+        $listNode = null;
+        $idNode = $id;
+        if (is_array($id) && count($id > 1)) {
+            $idNode = array_shift($id);
+            foreach($id as $itemId) {
+                $items[] = new ProtocolNode('item',
+                [
+                  'id' => $itemId
+                ], null, null);
+            }
+            $listNode = new ProtocolNode('list', null, $items, null);
+        }
+
         $messageNode = new ProtocolNode('receipt',
         [
           'type' => 'read',
-          'to'   => $to,
-          'id'   => $id,
-        ], null, null);
+          't'    => time(),
+          'to'   => $this->getJID($to),
+          'id'   => $idNode
+        ], [$listNode], null);
 
         $this->sendNode($messageNode);
     }
@@ -3113,13 +3147,11 @@ class WhatsProt
 
     public function getSessionCipher($number)
     {
-        if (isset($this->sessionCiphers[$number])) {
-            return $this->sessionCiphers[$number];
-        } else {
-            $this->sessionCiphers[$number] = new SessionCipher($this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $number, 1);
-
-            return $this->sessionCiphers[$number];
+        if (!isset($this->sessionCiphers[$number])) {
+          $this->sessionCiphers[$number] = new SessionCipher($this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $number, 1);
         }
+
+        return $this->sessionCiphers[$number];
     }
 
     public function getGroupCipher($groupId)
@@ -3196,6 +3228,11 @@ class WhatsProt
         return $this->pending_nodes;
     }
 
+    public function unsetPendingNode($jid)
+    {
+        unset($this->pending_nodes[ExtractNumber($jid)]);
+    }
+
     public function getNewMsgBind()
     {
         return $this->newMsgBind;
@@ -3215,7 +3252,6 @@ class WhatsProt
     {
         array_push($this->messageQueue, $node);
     }
-
 
     /**
      * @return mixed
