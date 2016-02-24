@@ -174,7 +174,7 @@ class MessageHandler implements Handler
               ]);
                     }*/
                 } elseif ($this->node->getChild('media')->getAttribute('type') == 'audio') {
-                    $author = $this->node->getAttribute('participant');
+                    if ($this->node->getAttribute('participant') == null) {
                     $this->parent->eventManager()->fire('onGetAudio',
             [
               $this->phoneNumber,
@@ -189,9 +189,27 @@ class MessageHandler implements Handler
               $this->node->getChild('media')->getAttribute('mimetype'),
               $this->node->getChild('media')->getAttribute('filehash'),
               $this->node->getChild('media')->getAttribute('seconds'),
-              $this->node->getChild('media')->getAttribute('acodec'),
-              $author,
+              $this->node->getChild('media')->getAttribute('acodec')
             ]);
+          } else {
+            $this->parent->eventManager()->fire('onGetGroupAudio',
+            [
+              $this->phoneNumber,
+              $this->node->getAttribute('from'),
+              $this->node->getAttribute('participant'),
+              $this->node->getAttribute('id'),
+              $this->node->getAttribute('type'),
+              $this->node->getAttribute('t'),
+              $this->node->getAttribute('notify'),
+              $this->node->getChild('media')->getAttribute('size'),
+              $this->node->getChild('media')->getAttribute('url'),
+              $this->node->getChild('media')->getAttribute('file'),
+              $this->node->getChild('media')->getAttribute('mimetype'),
+              $this->node->getChild('media')->getAttribute('filehash'),
+              $this->node->getChild('media')->getAttribute('seconds'),
+              $this->node->getChild('media')->getAttribute('acodec')
+            ]);
+          }
                 } elseif ($this->node->getChild('media')->getAttribute('type') == 'vcard') {
                     if ($this->node->getChild('media')->hasChild('vcard')) {
                         $name = $this->node->getChild('media')->getChild('vcard')->getAttribute('name');
@@ -200,8 +218,8 @@ class MessageHandler implements Handler
                         $name = 'NO_NAME';
                         $data = $this->node->getChild('media')->getData();
                     }
-                    $author = $this->node->getAttribute('participant');
 
+                    if ($this->node->getAttribute('participant') == null) {
                     $this->parent->eventManager()->fire('onGetvCard',
             [
               $this->phoneNumber,
@@ -211,14 +229,26 @@ class MessageHandler implements Handler
               $this->node->getAttribute('t'),
               $this->node->getAttribute('notify'),
               $name,
-              $data,
-              $author,
+              $data
             ]);
+          } else  {
+            $this->parent->eventManager()->fire('onGetGroupvCard',
+            [
+              $this->phoneNumber,
+              $this->node->getAttribute('from'),
+              $this->node->getAttribute('participant'),
+              $this->node->getAttribute('id'),
+              $this->node->getAttribute('type'),
+              $this->node->getAttribute('t'),
+              $this->node->getAttribute('notify'),
+              $name,
+              $data
+            ]);
+          }
                 } elseif ($this->node->getChild('media')->getAttribute('type') == 'location') {
                     $url = $this->node->getChild('media')->getAttribute('url');
                     $name = $this->node->getChild('media')->getAttribute('name');
-                    $author = $this->node->getAttribute('participant');
-
+                    if ($this->node->getAttribute('participant') == null) {
                     $this->parent->eventManager()->fire('onGetLocation',
             [
               $this->phoneNumber,
@@ -231,9 +261,25 @@ class MessageHandler implements Handler
               $this->node->getChild('media')->getAttribute('longitude'),
               $this->node->getChild('media')->getAttribute('latitude'),
               $url,
-              $this->node->getChild('media')->getData(),
-              $author,
+              $this->node->getChild('media')->getData()
             ]);
+          } else {
+            $this->parent->eventManager()->fire('onGetGroupLocation',
+            [
+              $this->phoneNumber,
+              $this->node->getAttribute('from'),
+              $this->node->getAttribute('participant'),
+              $this->node->getAttribute('id'),
+              $this->node->getAttribute('type'),
+              $this->node->getAttribute('t'),
+              $this->node->getAttribute('notify'),
+              $name,
+              $this->node->getChild('media')->getAttribute('longitude'),
+              $this->node->getChild('media')->getAttribute('latitude'),
+              $url,
+              $this->node->getChild('media')->getData()
+            ]);
+          }
                 }
             }
 
@@ -404,9 +450,24 @@ class MessageHandler implements Handler
                         'filehash' => bin2hex($image->getSha256()),
                         'width'    => 0,
                         'height'   => 0,
-                        'file'     => $decrypted_image,
+                        'file'     => $decrypted_image ?: $file_enc,
                         'type'     => 'image',
                       ], null, $image->getThumbnail());
+                  $node->addChild($child);
+                break;
+                case 'location':
+                  $location = new Location();
+                  $data = $node->getChild('enc')->getData();
+                  $location->parseFromString($plaintext);
+                  $child = new ProtocolNode('media',
+                    [
+                        'type' => 'location',
+                        'encoding'  => 'raw',
+                        'latitude'  => $location->getLatitude(),
+                        'longitude' => $location->getLongitude(),
+                        'name'      => $location->getName(),
+                        'url'       => $location->getUrl(),
+                    ], null, $location->getThumbnail());
                   $node->addChild($child);
                 break;
               }

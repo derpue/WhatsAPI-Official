@@ -1357,11 +1357,12 @@ class WhatsProt
 
                 if (in_array($to_num, $this->v2Jids) && !isset($this->v1Only[$to_num])) {
                     $version = '2';
-                    $plaintext = padMessage($plaintext);
+                    $alteredText = padMessage($plaintext);
                 } else {
                     $version = '1';
+                    $alteredText = $plaintext;
                 }
-                $cipherText = $sessionCipher->encrypt($plaintext);
+                $cipherText = $sessionCipher->encrypt($alteredText);
 
                 if ($cipherText instanceof WhisperMessage) {
                     $type = 'msg';
@@ -2774,7 +2775,7 @@ class WhatsProt
     protected function sendCheckAndSendMedia($filepath, $maxSize, $to, $type, $allowedExtensions, $storeURLmedia, $caption = '', $bcJID = null, $bcListName = null)
     {
         if ($this->getMediaFile($filepath, $maxSize) == true) {
-            if (in_array($this->mediaFileInfo['fileextension'], $allowedExtensions)) {
+            if (in_array(strtolower($this->mediaFileInfo['fileextension']), $allowedExtensions)) {
                 $b64hash = base64_encode(hash_file('sha256', $this->mediaFileInfo['filepath'], true));
                 //request upload and get Message ID
                 $id = $this->sendRequestFileUpload($b64hash, $type, $this->mediaFileInfo['filesize'], $this->mediaFileInfo['filepath'], $to, $caption, $bcJID, $bcListName);
