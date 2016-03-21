@@ -43,7 +43,7 @@ class WhatsProt
     protected $groupList = [];     // An array with all the groups a user belongs in.
     protected $outputKey;               // Instances of the KeyStream class.
     protected $groupId = false;         // Id of the group created.
-    public $lastId = false;          // Id to the last message sent.
+    protected $lastId = false;          // Id to the last message sent.
     protected $loginStatus;             // Holds the login status.
     protected $mediaFileInfo = []; // Media File Information
     protected $mediaQueue = [];    // Queue for media message nodes
@@ -71,7 +71,7 @@ class WhatsProt
     public $retryCounters = [];
     protected $readReceipts = true;
     public $retryNodes = [];
-    public $axolotlStore;
+    protected $axolotlStore;
     public $writer;                  // An instance of the BinaryTreeNodeWriter class.
     public $reader;                  // An instance of the BinaryTreeNodeReader class.
     public $logger;
@@ -123,7 +123,7 @@ class WhatsProt
 
         //wadata/nextChallenge.12125557788.dat
         $this->challengeFilename = sprintf('%snextChallenge.%s.dat', $this->dataFolder, $number);
-        //$this->messageStore = new SqliteMessageStore($number);
+        //$this->setMessageStore(new SqliteMessageStore($number, $this->dataFolder));
         $this->log = $log;
         if ($log) {
             $this->logger = new Logger($this->dataFolder.
@@ -472,7 +472,9 @@ class WhatsProt
                 'type' => 'retry',
                 't'    => $t,
             ], [$retryNode, $registrationNode], null);
-	    if(!isset($this->retryCounters[$id])) $this->retryCounters[$id] = 0;
+            if (!isset($this->retryCounters[$id])) {
+                $this->retryCounters[$id] = 0;
+            }
             $this->retryCounters[$id]++;
         }
         $this->sendNode($node);
@@ -689,7 +691,7 @@ class WhatsProt
     public function sendSetGCM($gcm = null)
     {
         if (is_null($gcm)) {
-          $gcm = getRandomGCM();
+            $gcm = getRandomGCM();
         }
         $attr = [];
         $attr['platform'] = 'gcm';
@@ -1452,9 +1454,9 @@ class WhatsProt
      *
      * @return string|null Message ID if successfully, null if not.
      */
-    public function sendMessageImage($to, $filepath, $storeURLmedia = false, $fsize = 0, $fhash = '', $caption = '', $bcJID = null, $bcListName = null)
+    public function sendMessageImage($to, $filepath, $storeURLmedia = false, $fsize = 0, $fhash = '', $caption = '', $bcJID = null, $bcListName = null, $encrypted = false)
     {
-        if ($fsize != 0 && $fhash != '') {
+        if ($fsize != 0 && $fhash != '' && !$encrypted) {
             return $this->sendRequestFileUpload($fhash, 'image', $fsize, $filepath, $to, $caption, $bcJID, $bcListName);
         }
 
@@ -1677,7 +1679,7 @@ class WhatsProt
                     'type'   => 'jid',
                     'value'  => $this->getJID($jid),
                     'action' => 'deny',
-                    'order'  => $index + 1,//WhatsApp stream crashes on zero index
+                    'order'  => $index + 1, //WhatsApp stream crashes on zero index
                 ], null, null);
             $items[] = $item;
         }
@@ -3003,7 +3005,7 @@ class WhatsProt
     /**
      * Send a read receipt to a message.
      *
-     * @param string $to The recipient.
+     * @param string                $to The recipient.
      * @param mixed String or Array $id
      */
     public function sendMessageRead($to, $id)
@@ -3012,10 +3014,10 @@ class WhatsProt
         $idNode = $id;
         if (is_array($id) && count($id > 1)) {
             $idNode = array_shift($id);
-            foreach($id as $itemId) {
+            foreach ($id as $itemId) {
                 $items[] = new ProtocolNode('item',
                 [
-                  'id' => $itemId
+                  'id' => $itemId,
                 ], null, null);
             }
             $listNode = new ProtocolNode('list', null, $items, null);
@@ -3026,7 +3028,7 @@ class WhatsProt
           'type' => 'read',
           't'    => time(),
           'to'   => $this->getJID($to),
-          'id'   => $idNode
+          'id'   => $idNode,
         ], [$listNode], null);
 
         $this->sendNode($messageNode);
@@ -3146,15 +3148,25 @@ class WhatsProt
         }
     }
 
+    /**
+     * @param $number
+     *
+     * @return \SessionCipher
+     */
     public function getSessionCipher($number)
     {
         if (!isset($this->sessionCiphers[$number])) {
-          $this->sessionCiphers[$number] = new SessionCipher($this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $number, 1);
+            $this->sessionCiphers[$number] = new SessionCipher($this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $this->axolotlStore, $number, 1);
         }
 
         return $this->sessionCiphers[$number];
     }
 
+    /**
+     * @param $groupId
+     *
+     * @return \GroupCipher
+     */
     public function getGroupCipher($groupId)
     {
         if (!isset($this->groupCiphers[$groupId])) {
@@ -3244,6 +3256,9 @@ class WhatsProt
         return $this->messageStore;
     }
 
+    /**
+     * @return \axolotlInterface
+     */
     public function getAxolotlStore()
     {
         return $this->axolotlStore;
@@ -3270,7 +3285,7 @@ class WhatsProt
     public function setLastId($lastId)
     {
         $this->lastId = $lastId;
+
         return $this;
     }
-
 }
